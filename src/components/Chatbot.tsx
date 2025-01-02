@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Box, useMediaQuery } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
+import { Item, useStore } from "@/store";
 
 interface ChatbotMethods {
   initChatbot: (config: { [key: string]: any }) => void;
@@ -8,12 +9,14 @@ interface ChatbotMethods {
 }
 
 const Chatbot: React.FC = () => {
+  const store = useStore();
+
   const [chatbotMethods, setChatbotMethods] = useState<ChatbotMethods | null>(
     null
   );
 
   const theme = useTheme();
-  const isLgUp = useMediaQuery(theme.breakpoints.up("lg"));
+  const isLgUp = useMediaQuery(theme.breakpoints.up("xl"));
   const [isLg, setIsLg] = useState(true);
 
   useEffect(() => {
@@ -38,13 +41,29 @@ const Chatbot: React.FC = () => {
 
   const chatbotConfig = {
     apiHost: "https://llminabox.criticalfutureglobal.com",
-    chatflowId: "e89d6572-be23-4709-a1f5-ab2aaada13cd",
+    chatflowId: "0f6e4479-ba3d-4a34-b0cb-be96f269a24c",
+    assistant: {
+      name: "Joe",
+      description: "Fseries AI Assistant",
+      welcomeMessage: "Hello! How can I help you?",
+      voice: {
+        name: "en-US-AndrewNeural",
+        apiKey: "G7x9mVt2Q5bK8Jp4S1Zc",
+        apiHost: "https://tts.criticalfutureglobal.com/get_tts"
+      },
+      avatar: {
+        staticUrl:
+          "https://critical-future-llm-in-a-box.github.io/llminaboxchatbots/Avatars/fs/joe.png",
+        liveUrl: "",
+        videoUrl: ""
+      }
+    },
     ui: {
       foregroundColor: "#e0e0e0",
       backgroundColor: "#181818",
       backgroundColorBody: "#545454"
     },
-    onRequest: (request: { content: string }) => {
+    onResponse: (request: { content: string }) => {
       (async () => {
         const response = await fetch(
           "https://llminabox.criticalfutureglobal.com/api/v1/prediction/16af3787-20f9-4555-9453-50e5110cf885",
@@ -69,7 +88,55 @@ const Chatbot: React.FC = () => {
               : "}"
         );
         const responseObj = JSON.parse(validJsonString);
-        console.log(responseObj.Recommendation);
+        const recommendations = responseObj.Recommendation;
+        Object.keys(recommendations).forEach((key) => {
+          if (key.toLocaleLowerCase().includes("media")) {
+            const mediaRecommendations = recommendations[key];
+            const mediaRecommendationsData: Item = {
+              title: "",
+              description: "",
+              url: ""
+            };
+            Object.keys(mediaRecommendations).forEach((property) => {
+              if (property.toLocaleLowerCase().includes("title")) {
+                mediaRecommendationsData.title = mediaRecommendations[property];
+              }
+              if (property.toLocaleLowerCase().includes("description")) {
+                mediaRecommendationsData.description =
+                  mediaRecommendations[property];
+              }
+              if (property.toLocaleLowerCase().includes("url")) {
+                mediaRecommendationsData.url = mediaRecommendations[property];
+              }
+            });
+            console.log(mediaRecommendationsData);
+
+            store.setMediaRecommendations([mediaRecommendationsData]);
+          }
+          if (key.toLocaleLowerCase().includes("parts")) {
+            const partsRecommendations = recommendations[key];
+            const partsRecommendationsData: Item = {
+              title: "",
+              description: "",
+              url: ""
+            };
+            Object.keys(partsRecommendations).forEach((property) => {
+              if (property.toLocaleLowerCase().includes("title")) {
+                partsRecommendationsData.title = partsRecommendations[property];
+              }
+              if (property.toLocaleLowerCase().includes("description")) {
+                partsRecommendationsData.description =
+                  partsRecommendations[property];
+              }
+              if (property.toLocaleLowerCase().includes("url")) {
+                partsRecommendationsData.url = partsRecommendations[property];
+              }
+            });
+            console.log(partsRecommendationsData);
+
+            store.setPartsRecommendations([partsRecommendationsData]);
+          }
+        });
       })().catch(console.error);
     }
   };

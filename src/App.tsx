@@ -1,271 +1,373 @@
-import React, { useState, useEffect } from "react";
-import { Paper, Stack } from "@mui/material";
-import Grid from "@mui/material/Grid2";
+import React, { useState, useEffect, memo } from "react";
+import {
+  Paper,
+  Stack,
+  Box,
+  Grid2 as Grid,
+  IconButton,
+  TextField,
+  Typography
+} from "@mui/material";
+import { Edit, Save, Logout } from "@mui/icons-material";
+import { useStore } from "@/store";
+import { useLibrary } from "@/hooks";
+import { useAuth } from "@/hooks/useAuth";
+import { Item } from "@/store";
 import Library from "@/components/Library";
 import Chatbot from "@/components/Chatbot";
+import { toast } from "react-toastify";
 
-interface Item {
-  id: number;
-  title: string;
-  description: string;
-  url: string;
-}
+const App = () => {
+  const { logout } = useAuth();
+  const {
+    setMediaLibrary,
+    setPartsLibrary,
+    deleteUser,
+    garageName,
+    setGarageName,
+    mediaLibrary,
+    partsLibrary,
+    mediaRecommendations,
+    partsRecommendations
+  } = useStore();
+  const {
+    getMediaLibrary,
+    getPartsLibrary,
+    addMediaItem,
+    addPartsItem,
+    updateMediaItem,
+    updatePartsItem,
+    deleteMediaItem,
+    deletePartsItem
+  } = useLibrary();
 
-export default function App(): JSX.Element {
-  const [libraryItems, setLibraryItems] = useState<Item[]>([]);
-  const [recommendationItems, setRecommendationItems] = useState<Item[]>([]);
+  const [tempName, setTempName] = useState("");
+  const [isEditingName, setIsEditingName] = useState(false);
 
-  useEffect(() => {
-    // More dummy data to allow scrolling
-    const fetchedLibraryItems: Item[] = [
-      {
-        id: 1,
-        title: "Landscape",
-        description: "A scenic view of mountains.",
-        url: "https://example.com/landscape"
-      },
-      {
-        id: 2,
-        title: "City Lights",
-        description: "A bustling city at night.",
-        url: "https://example.com/city"
-      },
-      {
-        id: 3,
-        title: "Forest",
-        description: "A lush green forest.",
-        url: "https://example.com/forest"
-      },
-      {
-        id: 4,
-        title: "Ocean Waves",
-        description: "Waves crashing on the shore.",
-        url: "https://example.com/ocean"
-      },
-      {
-        id: 5,
-        title: "Desert",
-        description: "A vast expanse of sand.",
-        url: "https://example.com/desert"
-      },
-      {
-        id: 6,
-        title: "Snowy Peaks",
-        description: "Mountains covered in snow.",
-        url: "https://example.com/snow"
-      },
-      {
-        id: 7,
-        title: "Valley",
-        description: "A serene valley scene.",
-        url: "https://example.com/valley"
-      },
-      {
-        id: 8,
-        title: "Waterfall",
-        description: "A cascading waterfall.",
-        url: "https://example.com/waterfall"
-      }
-    ];
-
-    const fetchedRecommendations: Item[] = [
-      {
-        id: 101,
-        title: "Recommended Book",
-        description: "A must read.",
-        url: "https://example.com/book"
-      },
-      {
-        id: 102,
-        title: "Recommended Movie",
-        description: "A must watch.",
-        url: "https://example.com/movie"
-      },
-      {
-        id: 103,
-        title: "Recommended Podcast",
-        description: "Insightful talks.",
-        url: "https://example.com/podcast"
-      },
-      {
-        id: 104,
-        title: "Recommended Music",
-        description: "Soothing tunes.",
-        url: "https://example.com/music"
-      },
-      {
-        id: 105,
-        title: "Recommended Series",
-        description: "Binge-worthy show.",
-        url: "https://example.com/series"
-      },
-      {
-        id: 106,
-        title: "Recommended Art",
-        description: "A visual delight.",
-        url: "https://example.com/art"
-      }
-    ];
-
-    setLibraryItems(fetchedLibraryItems);
-    setRecommendationItems(fetchedRecommendations);
-  }, []);
-
-  const handleAddLibraryItem = (newItem: Omit<Item, "id">) => {
-    setLibraryItems((prev) => [...prev, { id: Date.now(), ...newItem }]);
-  };
-
-  const handleEditLibraryItem = (id: number, updatedItem: Omit<Item, "id">) => {
-    setLibraryItems((prev) =>
-      prev.map((item) => (item.id === id ? { id, ...updatedItem } : item))
+  const handleLogout = async () => {
+    const response = await logout().catch((error) =>
+      toast.error(error.message)
     );
+    if (response) toast.success("Logged out successfully");
+    deleteUser();
   };
 
-  const handleRemoveLibraryItem = (id: number) => {
-    setLibraryItems((prev) => prev.filter((item) => item.id !== id));
+  // Query hooks
+  const { data: mediaLibraryData } = getMediaLibrary();
+  const { data: partsLibraryData } = getPartsLibrary();
+
+  // Mutation hooks
+  const addMediaMutation = addMediaItem();
+  const addPartsMutation = addPartsItem();
+  const updateMediaMutation = updateMediaItem();
+  const updatePartsMutation = updatePartsItem();
+  const deleteMediaMutation = deleteMediaItem();
+  const deletePartsMutation = deletePartsItem();
+
+  // Update local state when data changes
+  useEffect(() => {
+    if (mediaLibraryData) setMediaLibrary(mediaLibraryData);
+    if (partsLibraryData) setPartsLibrary(partsLibraryData);
+  }, [mediaLibraryData, partsLibraryData]);
+
+  const handleAddMediaItem = async (newItem: Omit<Item, "id">) => {
+    const itemWithId: Item = { id: Date.now(), ...newItem };
+    await addMediaMutation
+      .mutateAsync(itemWithId)
+      .then(() => {
+        toast.success("Media item added successfully");
+      })
+      .catch((error) => {
+        toast.error(error.message);
+      });
   };
 
-  const handleAddRecommendationToLibrary = (item: Item) => {
-    setLibraryItems((prev) => [...prev, { ...item, id: Date.now() }]);
+  const handleAddPartsItem = async (newItem: Omit<Item, "id">) => {
+    const itemWithId: Item = { id: Date.now(), ...newItem };
+    await addPartsMutation
+      .mutateAsync(itemWithId)
+      .then(() => {
+        toast.success("Parts item added successfully");
+      })
+      .catch((error) => {
+        toast.error(error.message);
+      });
+  };
+
+  const handleUpdateMediaItem = async (id: number, data: Partial<Item>) => {
+    await updateMediaMutation
+      .mutateAsync({ id, data })
+      .then(() => {
+        toast.success("Media item updated successfully");
+      })
+      .catch((error) => {
+        toast.error(error.message);
+      });
+  };
+
+  const handleUpdatePartsItem = async (id: number, data: Partial<Item>) => {
+    await updatePartsMutation
+      .mutateAsync({ id, data })
+      .then(() => {
+        toast.success("Parts item updated successfully");
+      })
+      .catch((error) => {
+        toast.error(error.message);
+      });
+  };
+
+  const handleDeleteMediaItem = async (id: number) => {
+    await deleteMediaMutation
+      .mutateAsync(id)
+      .then(() => {
+        toast.success("Media item deleted successfully");
+      })
+      .catch((error) => {
+        toast.error(error.message);
+      });
+  };
+
+  const handleDeletePartsItem = async (id: number) => {
+    await deletePartsMutation
+      .mutateAsync(id)
+      .then(() => {
+        toast.success("Parts item deleted successfully");
+      })
+      .catch((error) => {
+        toast.error(error.message);
+      });
+  };
+
+  const handleAddMediaToLibrary = async (item: Item) => {
+    await addMediaMutation
+      .mutateAsync(item)
+      .then(() => {
+        toast.success("Media item added to library successfully");
+      })
+      .catch((error) => {
+        toast.error(error.message);
+      });
+  };
+
+  const handleAddPartsToLibrary = async (item: Item) => {
+    await addPartsMutation
+      .mutateAsync(item)
+      .then(() => {
+        toast.success("Parts item added to library successfully");
+      })
+      .catch((error) => {
+        toast.error(error.message);
+      });
   };
 
   return (
-    <Grid
-      container
-      spacing={8}
-      sx={{
-        padding: 8,
-        minWidth: "400px",
+    <div
+      style={{
+        position: "relative",
         minHeight: "100vh",
-        backgroundImage: "url(/garage.webp)",
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        backgroundRepeat: "no-repeat"
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center"
       }}
     >
-      {/* Media Column */}
       <Grid
-        size={{ xs: 12, sm: 12, md: 6, lg: 4 }}
-        sx={{ display: "flex" }}
+        container
+        spacing={8}
+        rowSpacing={2}
+        sx={{ padding: 6 }}
       >
-        <Stack
-          useFlexGap
-          direction="column"
-          spacing={8}
-          sx={{ flexGrow: 1, minWidth: "200px" }}
-        >
-          <Paper
-            variant="elevation"
-            elevation={2}
-            sx={{
-              flexGrow: 1,
-              borderRadius: 4,
-              overflow: "hidden",
-              maxHeight: "38vh",
-              bgcolor: "transparent"
-            }}
-          >
-            <Library
-              mode="library"
-              title="Media Library"
-              items={libraryItems}
-              onAddItem={handleAddLibraryItem}
-              onEditItem={handleEditLibraryItem}
-              onRemoveItem={handleRemoveLibraryItem}
-            />
-          </Paper>
-          <Paper
-            variant="elevation"
-            elevation={2}
-            sx={{
-              flexGrow: 1,
-              borderRadius: 4,
-              overflow: "hidden",
-              maxHeight: "38vh",
-              bgcolor: "transparent"
-            }}
-          >
-            <Library
-              mode="recommendation"
-              title="Media Recommendations"
-              items={recommendationItems}
-              onAddToLibrary={handleAddRecommendationToLibrary}
-            />
-          </Paper>
-        </Stack>
-      </Grid>
-
-      {/* Parts Column */}
-      <Grid
-        size={{ xs: 12, sm: 12, md: 6, lg: 4 }}
-        sx={{ display: "flex" }}
-      >
-        <Stack
-          useFlexGap
-          direction="column"
-          spacing={8}
-          sx={{ flexGrow: 1, minWidth: "200px" }}
-        >
-          <Paper
-            variant="elevation"
-            elevation={2}
-            sx={{
-              flexGrow: 1,
-              borderRadius: 4,
-              overflow: "hidden",
-              maxHeight: "38vh",
-              bgcolor: "transparent"
-            }}
-          >
-            <Library
-              mode="library"
-              title="Parts Library"
-              items={libraryItems}
-              onAddItem={handleAddLibraryItem}
-              onEditItem={handleEditLibraryItem}
-              onRemoveItem={handleRemoveLibraryItem}
-            />
-          </Paper>
-          <Paper
-            variant="elevation"
-            elevation={2}
-            sx={{
-              flexGrow: 1,
-              borderRadius: 4,
-              overflow: "hidden",
-              maxHeight: "38vh",
-              bgcolor: "transparent"
-            }}
-          >
-            <Library
-              mode="recommendation"
-              title="Parts Recommendations"
-              items={recommendationItems}
-              onAddToLibrary={handleAddRecommendationToLibrary}
-            />
-          </Paper>
-        </Stack>
-      </Grid>
-
-      {/* Chatbot Column */}
-      <Grid
-        size={{ xs: 0, lg: 4 }}
-        sx={{ display: { xs: "none", lg: "flex" } }}
-      >
-        <Paper
-          variant="elevation"
-          elevation={2}
+        {/* Header Row */}
+        <Grid
+          size={12}
           sx={{
-            flexGrow: 1,
-            minWidth: "400px",
-            borderRadius: 4,
-            overflow: "hidden",
-            bgcolor: "rgba(0,0,0,0.6)"
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            gap: 2
           }}
         >
-          <Chatbot />
-        </Paper>
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              padding: 1,
+              borderRadius: 2,
+              bgcolor: "rgba(0,0,0,0.5)",
+              backdropFilter: "blur(8px)"
+            }}
+          >
+            {isEditingName ? (
+              <TextField
+                variant="standard"
+                value={tempName}
+                onChange={(e) => setTempName(e.target.value)}
+                sx={{ input: { color: "#fff" } }}
+              />
+            ) : (
+              <Typography
+                variant="h6"
+                color="#fff"
+              >
+                {garageName} Garage
+              </Typography>
+            )}
+            <IconButton
+              onClick={() => {
+                if (isEditingName) {
+                  setGarageName(tempName);
+                  setIsEditingName(false);
+                } else {
+                  setIsEditingName(true);
+                  setTempName(garageName ?? "");
+                }
+              }}
+              sx={{ color: "#fff" }}
+            >
+              {isEditingName ? <Save /> : <Edit />}
+            </IconButton>
+          </Box>
+
+          <IconButton
+            onClick={handleLogout}
+            sx={{
+              "backgroundColor": "rgba(0,0,0,0.5)",
+              "color": "white",
+              "&:hover": {
+                backgroundColor: "rgba(0,0,0,0.7)",
+                color: "rgba(255,255,255,0.7)"
+              }
+            }}
+          >
+            <Logout />
+          </IconButton>
+        </Grid>
+
+        {/* Media Column */}
+        <Grid
+          size={{ xs: 12, md: 6, xl: 4 }}
+          sx={{ display: "flex" }}
+        >
+          <Stack
+            useFlexGap
+            direction="column"
+            spacing={8}
+            sx={{ flexGrow: 1, minWidth: "200px" }}
+          >
+            <Paper
+              variant="elevation"
+              elevation={2}
+              sx={{
+                flexGrow: 1,
+                borderRadius: 4,
+                height: "35vh",
+                overflow: "hidden",
+                bgcolor: "transparent"
+              }}
+            >
+              <Library
+                mode="library"
+                title="Media Library"
+                items={mediaLibrary}
+                onAddItem={handleAddMediaItem}
+                onEditItem={handleUpdateMediaItem}
+                onRemoveItem={handleDeleteMediaItem}
+              />
+            </Paper>
+            <Paper
+              variant="elevation"
+              elevation={2}
+              sx={{
+                flexGrow: 1,
+                borderRadius: 4,
+                height: "35vh",
+                overflow: "hidden",
+                bgcolor: "transparent"
+              }}
+            >
+              <Library
+                mode="recommendation"
+                title="Media Recommendations"
+                items={mediaRecommendations}
+                onAddToLibrary={handleAddMediaToLibrary}
+              />
+            </Paper>
+          </Stack>
+        </Grid>
+
+        {/* Parts Column */}
+        <Grid
+          size={{ xs: 12, md: 6, xl: 4 }}
+          sx={{ display: "flex" }}
+        >
+          <Stack
+            useFlexGap
+            direction="column"
+            spacing={8}
+            sx={{ flexGrow: 1, minWidth: "200px" }}
+          >
+            <Paper
+              variant="elevation"
+              elevation={2}
+              sx={{
+                flexGrow: 1,
+                borderRadius: 4,
+                height: "35vh",
+                overflow: "hidden",
+                bgcolor: "transparent"
+              }}
+            >
+              <Library
+                mode="library"
+                title="Parts Library"
+                items={partsLibrary}
+                onAddItem={handleAddPartsItem}
+                onEditItem={handleUpdatePartsItem}
+                onRemoveItem={handleDeletePartsItem}
+              />
+            </Paper>
+            <Paper
+              variant="elevation"
+              elevation={2}
+              sx={{
+                flexGrow: 1,
+                borderRadius: 4,
+                height: "35vh",
+                overflow: "hidden",
+                bgcolor: "transparent"
+              }}
+            >
+              <Library
+                mode="recommendation"
+                title="Parts Recommendations"
+                items={partsRecommendations}
+                onAddToLibrary={handleAddPartsToLibrary}
+              />
+            </Paper>
+          </Stack>
+        </Grid>
+
+        {/* Chatbot Column */}
+        <Grid
+          size={{ xs: 0, xl: 4 }}
+          sx={{ display: { xs: "none", xl: "flex" }, minWidth: "200px" }}
+        >
+          <Paper
+            variant="elevation"
+            elevation={2}
+            sx={{
+              flexGrow: 1,
+              borderRadius: 4,
+              height: "80vh",
+              overflow: "hidden",
+              bgcolor: "transparent"
+            }}
+          >
+            <Chatbot />
+          </Paper>
+        </Grid>
       </Grid>
-    </Grid>
+    </div>
   );
-}
+};
+
+export default memo(App);
