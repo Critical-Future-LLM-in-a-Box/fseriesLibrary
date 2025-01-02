@@ -2,8 +2,7 @@ import axios from "axios";
 import { useStore } from "@/store";
 
 export const axiosClient = axios.create({
-  // @ts-expect-error: VITE_API_URL is not recognized by TypeScript
-  baseURL: import.meta.env.VITE_API_URL
+  baseURL: "https://flib.criticalfuture.co"
 });
 
 axiosClient.interceptors.request.use((config) => {

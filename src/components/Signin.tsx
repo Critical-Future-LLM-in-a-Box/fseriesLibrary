@@ -48,6 +48,7 @@ const SignInForm: React.FC<SignInFormProps> = ({
       if (accessToken) {
         setIsLoading(false);
         setIsLogged(true);
+        toast.success("Sign in successful");
       }
     },
     validators: {

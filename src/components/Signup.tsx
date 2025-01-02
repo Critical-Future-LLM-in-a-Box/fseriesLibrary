@@ -55,10 +55,12 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
     },
     onSubmit: async ({ value }) => {
       setIsLoading(true);
-      await signup(value).catch((error) => {
+      const response = await signup(value).catch((error) => {
         toast.error(error.message);
         setIsLoading(false);
       });
+
+      toast.success(response.success.message);
 
       setIsLoading(false);
       setIsLogged(false);

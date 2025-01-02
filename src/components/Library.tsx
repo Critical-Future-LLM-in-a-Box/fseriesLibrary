@@ -404,7 +404,7 @@ const Library: React.FC<LibraryProps> = ({
                 borderBottom: `1px solid ${theme.palette.grey[800]}`
               }}
             >
-              <Typography variant="h6">{selectedItem.title}</Typography>
+              <Typography>{selectedItem.title}</Typography>
               <IconButton
                 onClick={() => setSelectedItem(null)}
                 sx={{ color: theme.palette.grey[300] }}
