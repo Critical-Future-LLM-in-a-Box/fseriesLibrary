@@ -92,7 +92,8 @@ const Chatbot: React.FC = () => {
         Object.keys(recommendations).forEach((key) => {
           if (key.toLocaleLowerCase().includes("media")) {
             const mediaRecommendations = recommendations[key];
-            const mediaRecommendationsData: Item = {
+            const mediaRecommendationsData = {
+              id: Date.now(),
               title: "",
               description: "",
               url: ""
@@ -115,7 +116,8 @@ const Chatbot: React.FC = () => {
           }
           if (key.toLocaleLowerCase().includes("parts")) {
             const partsRecommendations = recommendations[key];
-            const partsRecommendationsData: Item = {
+            const partsRecommendationsData = {
+              id: Date.now(),
               title: "",
               description: "",
               url: ""
