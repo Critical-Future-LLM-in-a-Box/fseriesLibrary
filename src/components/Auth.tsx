@@ -3,7 +3,7 @@ import { useStore } from "@/store";
 import SigninForm from "@/components/Signin";
 import SignupForm from "@/components/Signup";
 // @ts-expect-error: TypeScript cannot find the module for the gif file
-import overlayGif from "@/../public/fseriesh.gif";
+import overlayGif from "@/assets/fseriesh.gif";
 
 interface AuthWrapperProps {
   children: ReactNode;

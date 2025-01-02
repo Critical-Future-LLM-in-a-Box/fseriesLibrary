@@ -8,6 +8,8 @@ import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { ToastContainer } from "react-toastify";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 // import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+// @ts-expect-error: TypeScript cannot find the module for the gif file
+import bg from "@/assets/fseries.png";
 
 import { AuthWrapper } from "@/components/Auth";
 import App from "@/App";
@@ -17,10 +19,11 @@ const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       staleTime: 10 * 60 * 1000,
-      refetchInterval: 10 * 60 * 1000,
+      refetchInterval: 10 * 60 * 1000
     },
-    mutations: {},
-}});
+    mutations: {}
+  }
+});
 
 const RootComponent = () => {
   return (
@@ -37,7 +40,7 @@ const RootComponent = () => {
               overflow: "auto",
               minWidth: "350px",
               minHeight: "100vh",
-              backgroundImage: "url(/fseries.png)",
+              backgroundImage: `url(${bg})`,
               backgroundSize: "cover",
               backgroundPosition: "center",
               backgroundRepeat: "no-repeat"
