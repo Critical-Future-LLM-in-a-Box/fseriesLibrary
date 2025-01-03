@@ -2,8 +2,8 @@ import React, { ReactNode, memo } from "react";
 import { useStore } from "@/store";
 import SigninForm from "@/components/Signin";
 import SignupForm from "@/components/Signup";
-// @ts-expect-error: TypeScript cannot find the module for the gif file
-import overlayGif from "@/assets/fseriesh.gif";
+
+import overlayGif from "@/assets/fseries.gif?inline";
 
 interface AuthWrapperProps {
   children: ReactNode;
@@ -33,15 +33,15 @@ export const AuthWrapper: React.FC<AuthWrapperProps> = ({ children }) => {
           position: "fixed",
           inset: 0,
           zIndex: 999,
-          overflow: "hidden"
+          overflow: "hidden",
+          width: "100vw",
+          height: "100vh",
+          backgroundImage: `url(${overlayGif})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat"
         }}
-      >
-        <img
-          src={overlayGif}
-          alt="Loading Ford Trucks"
-          style={{ width: "100vw", height: "100vh", objectFit: "cover" }}
-        />
-      </div>
+      ></div>
     );
   }
 

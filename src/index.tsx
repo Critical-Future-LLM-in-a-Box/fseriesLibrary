@@ -7,12 +7,11 @@ import { createTheme, ThemeProvider } from "@mui/material/styles";
 
 import { ToastContainer } from "react-toastify";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-// import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-// @ts-expect-error: TypeScript cannot find the module for the gif file
-import bg from "@/assets/fseries.png";
 
 import { AuthWrapper } from "@/components/Auth";
 import App from "@/App";
+
+import bg from "@/assets/fseries.png";
 
 const theme = createTheme();
 const queryClient = new QueryClient({
@@ -51,7 +50,6 @@ const RootComponent = () => {
             </AuthWrapper>
           </Box>
         </ThemeProvider>
-        {/* <ReactQueryDevtools /> */}
       </QueryClientProvider>
     </React.StrictMode>
   );

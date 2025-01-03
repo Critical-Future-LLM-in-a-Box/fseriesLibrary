@@ -2,7 +2,7 @@ import axios from "axios";
 import { useStore } from "@/store";
 
 export const axiosClient = axios.create({
-  baseURL: "https://flib.criticalfuture.co"
+  baseURL: import.meta.env.VITE_API_URL
 });
 
 axiosClient.interceptors.request.use((config) => {

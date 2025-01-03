@@ -60,6 +60,7 @@ const SignUpForm: React.FC<SignUpFormProps> = ({
         setIsLoading(false);
       });
 
+      toast.success("Sign up successful");
       toast.success(response.success.message);
 
       setIsLoading(false);
