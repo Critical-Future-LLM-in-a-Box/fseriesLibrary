@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Box, useMediaQuery } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { Item, useStore } from "@/store";
+import { useStore } from "@/store";
 
 interface ChatbotMethods {
   initChatbot: (config: { [key: string]: any }) => void;
@@ -24,19 +24,19 @@ const Chatbot: React.FC = () => {
   }, [isLgUp]);
 
   useEffect(() => {
-    (async () => {
-      const scriptUrl =
-        "https://critical-future-llm-in-a-box.github.io/llminaboxchatbots/dist/llminaboxChat.js";
+    const scriptUrl =
+      "https://critical-future-llm-in-a-box.github.io/llminaboxchatbots/dist/llminaboxChat.js";
 
+    (async () => {
       const module = await import(/* @vite-ignore */ scriptUrl);
 
-      if (module?.initChatbot && module?.destroyChatbot) {
+      if (module?.initChatbot) {
         setChatbotMethods({
           initChatbot: module.initChatbot,
           destroyChatbot: module.destroyChatbot
         });
       }
-    })().catch(console.error);
+    })();
   }, []);
 
   const chatbotConfig = {
@@ -78,7 +78,9 @@ const Chatbot: React.FC = () => {
           }
         );
         const responseJson = await response.json();
+
         const responseText = responseJson.text;
+
         const regex = /\[|\]/g;
         const validJsonString = responseText.replace(regex, (match: string) =>
           match === "\\\\" || match === "\\[\\]"
@@ -87,6 +89,7 @@ const Chatbot: React.FC = () => {
               ? "{"
               : "}"
         );
+
         const responseObj = JSON.parse(validJsonString);
         const recommendations = responseObj.Recommendation;
         Object.keys(recommendations).forEach((key) => {

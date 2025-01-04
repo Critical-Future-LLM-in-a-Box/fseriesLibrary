@@ -1,66 +1,40 @@
-import React, { ReactNode, memo } from "react";
+import React from "react";
 import { useStore } from "@/store";
 import SigninForm from "@/components/Signin";
 import SignupForm from "@/components/Signup";
-
-import overlayGif from "@/assets/fseries.gif?inline";
+import Background from "@/components/Background";
 
 interface AuthWrapperProps {
-  children: ReactNode;
+  children: React.ReactNode;
 }
 
 export const AuthWrapper: React.FC<AuthWrapperProps> = ({ children }) => {
   const { user } = useStore();
-
   const [isSignup, setIsSignup] = React.useState(true);
   const [isLogged, setIsLogged] = React.useState(false);
-  const [showOverlay, setShowOverlay] = React.useState(true);
-
-  React.useEffect(() => {
-    const timer = setTimeout(() => setShowOverlay(false), 3000);
-    return () => clearTimeout(timer);
-  }, []);
 
   React.useEffect(() => {
     if (user) setIsLogged(true);
     if (!user) setIsLogged(false);
   }, [user]);
 
-  if (showOverlay) {
-    return (
-      <div
-        style={{
-          position: "fixed",
-          inset: 0,
-          zIndex: 999,
-          overflow: "hidden",
-          width: "100vw",
-          height: "100vh",
-          backgroundImage: `url(${overlayGif})`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          backgroundRepeat: "no-repeat"
-        }}
-      ></div>
-    );
-  }
+  const renderAuthContent = () => {
+    if (isLogged || user) return children;
 
-  if (isLogged) return children;
-
-  if (isSignup)
-    return (
-      <SigninForm
-        setIsSignup={setIsSignup}
+    return !isSignup ? (
+      <SignupForm
         setIsLogged={setIsLogged}
+        setIsSignup={setIsSignup}
+      />
+    ) : (
+      <SigninForm
+        setIsLogged={setIsLogged}
+        setIsSignup={setIsSignup}
       />
     );
+  };
 
-  return (
-    <SignupForm
-      setIsSignup={setIsSignup}
-      setIsLogged={setIsLogged}
-    />
-  );
+  return <Background>{renderAuthContent()}</Background>;
 };
 
-export default memo(AuthWrapper);
+export default React.memo(AuthWrapper);

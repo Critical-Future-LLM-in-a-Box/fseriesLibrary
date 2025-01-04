@@ -1,7 +1,6 @@
 import React from "react";
 import { createRoot } from "react-dom/client";
 
-import { Box } from "@mui/material";
 import { CssBaseline } from "@mui/material";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 
@@ -10,8 +9,6 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 import { AuthWrapper } from "@/components/Auth";
 import App from "@/App";
-
-import bg from "@/assets/fseries.png";
 
 const theme = createTheme();
 const queryClient = new QueryClient({
@@ -26,35 +23,16 @@ const queryClient = new QueryClient({
 
 const RootComponent = () => {
   return (
-    <React.StrictMode>
-      <QueryClientProvider client={queryClient}>
-        <ThemeProvider theme={theme}>
-          <CssBaseline />
-          <ToastContainer />
-          <Box
-            sx={{
-              display: "flex",
-              flexDirection: "column",
-              position: "relative",
-              overflow: "auto",
-              minWidth: "350px",
-              minHeight: "100vh",
-              backgroundImage: `url(${bg})`,
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-              backgroundRepeat: "no-repeat"
-            }}
-          >
-            <AuthWrapper>
-              <App />
-            </AuthWrapper>
-          </Box>
-        </ThemeProvider>
-      </QueryClientProvider>
-    </React.StrictMode>
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <ToastContainer />
+        <AuthWrapper>
+          <App />
+        </AuthWrapper>
+      </ThemeProvider>
+    </QueryClientProvider>
   );
 };
 
-const root = document.getElementById("root");
-if (!root) throw new Error("No root element");
-createRoot(root).render(<RootComponent />);
+createRoot(document.getElementById("root")!).render(<RootComponent />);

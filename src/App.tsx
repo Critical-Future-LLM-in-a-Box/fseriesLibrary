@@ -164,17 +164,18 @@ const App = () => {
     <div
       style={{
         position: "relative",
+        width: "100%",
         minHeight: "100vh",
         display: "flex",
         justifyContent: "center",
-        alignItems: "center"
+        alignItems: "flex-start"
       }}
     >
       <Grid
         container
         spacing={8}
         rowSpacing={2}
-        sx={{ padding: 6 }}
+        sx={{ padding: { xs: 2, md: 6 } }}
       >
         {/* Header Row */}
         <Grid

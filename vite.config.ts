@@ -4,6 +4,7 @@ import tsconfigPaths from "vite-tsconfig-paths";
 
 export default defineConfig(({ mode }) => ({
   plugins: [react(), tsconfigPaths()],
+  assetsInclude: ["**/*.png", "**/*.gif"],
   build: {
     lib: {
       entry: "src/index.tsx",
