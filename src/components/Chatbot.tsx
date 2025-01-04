@@ -16,7 +16,7 @@ const Chatbot: React.FC = () => {
   );
 
   const theme = useTheme();
-  const isLgUp = useMediaQuery(theme.breakpoints.up("xl"));
+  const isLgUp = useMediaQuery(theme.breakpoints.up("lg"));
   const [isLg, setIsLg] = useState(true);
 
   useEffect(() => {

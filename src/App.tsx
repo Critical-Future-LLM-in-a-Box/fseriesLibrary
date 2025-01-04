@@ -245,7 +245,7 @@ const App = () => {
 
         {/* Media Column */}
         <Grid
-          size={{ xs: 12, md: 6, xl: 4 }}
+          size={{ xs: 12, md: 6, lg: 4 }}
           sx={{ display: "flex" }}
         >
           <Stack
@@ -297,7 +297,7 @@ const App = () => {
 
         {/* Parts Column */}
         <Grid
-          size={{ xs: 12, md: 6, xl: 4 }}
+          size={{ xs: 12, md: 6, lg: 4 }}
           sx={{ display: "flex" }}
         >
           <Stack
@@ -349,7 +349,7 @@ const App = () => {
 
         {/* Chatbot Column */}
         <Grid
-          size={{ xs: 0, xl: 4 }}
+          size={{ xs: 0, lg: 4 }}
           sx={{ display: { xs: "none", xl: "flex" }, minWidth: "200px" }}
         >
           <Paper
