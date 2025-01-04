@@ -1,7 +1,5 @@
 import React from "react";
 import { Box } from "@mui/material";
-import backgroundImage from "../../public/fseries.png";
-import overlayImage from "../../public/fseries.gif";
 
 interface BackgroundProps {
   children: React.ReactNode;
@@ -36,7 +34,9 @@ const Background: React.FC<BackgroundProps> = ({ children }) => {
       >
         <Box
           component="img"
-          src={backgroundImage}
+          src={
+            "https://critical-future-llm-in-a-box.github.io/fseriesLibrary/public/fseries.png"
+          }
           alt="background"
           sx={{
             width: "100%",
@@ -50,7 +50,9 @@ const Background: React.FC<BackgroundProps> = ({ children }) => {
         {showOverlay && (
           <Box
             component="img"
-            src={overlayImage}
+            src={
+              "https://critical-future-llm-in-a-box.github.io/fseriesLibrary/public/fseries.gif"
+            }
             alt="overlay"
             sx={{
               width: "100%",
