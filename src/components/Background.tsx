@@ -1,7 +1,7 @@
 import React from "react";
 import { Box } from "@mui/material";
-import backgroundImage from "/fseries.png";
-import overlayImage from "/fseries.gif";
+import backgroundImage from "../../public/fseries.png";
+import overlayImage from "../../public/fseries.gif";
 
 interface BackgroundProps {
   children: React.ReactNode;
