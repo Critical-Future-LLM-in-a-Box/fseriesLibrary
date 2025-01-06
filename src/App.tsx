@@ -350,7 +350,7 @@ const App = () => {
         {/* Chatbot Column */}
         <Grid
           size={{ xs: 0, lg: 4 }}
-          sx={{ display: { xs: "none", xl: "flex" }, minWidth: "200px" }}
+          sx={{ display: { xs: "none", lg: "flex" }, minWidth: "200px" }}
         >
           <Paper
             variant="elevation"
