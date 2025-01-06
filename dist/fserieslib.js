@@ -26781,9 +26781,10 @@ const wy = () => {
     {
       sx: {
         position: "relative",
-        width: "100%",
+        width: "100vw",
         minHeight: "100vh",
-        overflowY: "auto"
+        overflowY: "auto",
+        overflowX: "hidden"
       },
       children: [
         /* @__PURE__ */ _.jsxs(
@@ -26793,7 +26794,9 @@ const wy = () => {
               position: "fixed",
               top: 0,
               left: 0,
-              width: "100%",
+              right: 0,
+              bottom: 0,
+              width: "100vw",
               height: "100vh",
               zIndex: 0
             },
@@ -26805,12 +26808,14 @@ const wy = () => {
                   src: "https://critical-future-llm-in-a-box.github.io/fseriesLibrary/public/fseries.png",
                   alt: "background",
                   sx: {
-                    width: "100%",
-                    height: "100%",
+                    width: "100vw",
+                    height: "100vh",
                     objectFit: "cover",
                     position: "absolute",
                     top: 0,
-                    left: 0
+                    left: 0,
+                    right: 0,
+                    bottom: 0
                   }
                 }
               ),
@@ -26821,19 +26826,22 @@ const wy = () => {
                   src: "https://critical-future-llm-in-a-box.github.io/fseriesLibrary/public/fseries.gif",
                   alt: "overlay",
                   sx: {
-                    width: "100%",
-                    height: "100%",
+                    width: "100vw",
+                    height: "100vh",
                     objectFit: "cover",
                     position: "absolute",
                     top: 0,
-                    left: 0
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    zIndex: 1
                   }
                 }
               )
             ]
           }
         ),
-        /* @__PURE__ */ _.jsx(mt, { sx: { position: "relative" }, children: e })
+        /* @__PURE__ */ _.jsx(mt, { sx: { position: "relative", zIndex: 2 }, children: e })
       ]
     }
   );

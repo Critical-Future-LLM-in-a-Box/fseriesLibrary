@@ -17,9 +17,10 @@ const Background: React.FC<BackgroundProps> = ({ children }) => {
     <Box
       sx={{
         position: "relative",
-        width: "100%",
+        width: "100vw",
         minHeight: "100vh",
-        overflowY: "auto"
+        overflowY: "auto",
+        overflowX: "hidden"
       }}
     >
       <Box
@@ -27,7 +28,9 @@ const Background: React.FC<BackgroundProps> = ({ children }) => {
           position: "fixed",
           top: 0,
           left: 0,
-          width: "100%",
+          right: 0,
+          bottom: 0,
+          width: "100vw",
           height: "100vh",
           zIndex: 0
         }}
@@ -39,12 +42,14 @@ const Background: React.FC<BackgroundProps> = ({ children }) => {
           }
           alt="background"
           sx={{
-            width: "100%",
-            height: "100%",
+            width: "100vw",
+            height: "100vh",
             objectFit: "cover",
             position: "absolute",
             top: 0,
-            left: 0
+            left: 0,
+            right: 0,
+            bottom: 0
           }}
         />
         {showOverlay && (
@@ -55,17 +60,20 @@ const Background: React.FC<BackgroundProps> = ({ children }) => {
             }
             alt="overlay"
             sx={{
-              width: "100%",
-              height: "100%",
+              width: "100vw",
+              height: "100vh",
               objectFit: "cover",
               position: "absolute",
               top: 0,
-              left: 0
+              left: 0,
+              right: 0,
+              bottom: 0,
+              zIndex: 1
             }}
           />
         )}
       </Box>
-      <Box sx={{ position: "relative" }}>{children}</Box>
+      <Box sx={{ position: "relative", zIndex: 2 }}>{children}</Box>
     </Box>
   );
 };
