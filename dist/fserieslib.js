@@ -27345,7 +27345,7 @@ const No = {
 }, d$ = () => {
   const e = Nl(), [t, n] = w.useState(
     null
-  ), r = $o(), o = EM(r.breakpoints.up("lg")), [s, i] = w.useState(!0);
+  ), r = $o(), o = EM(r.breakpoints.up("xl")), [s, i] = w.useState(!0);
   w.useEffect(() => {
     i(o);
   }, [o]), w.useEffect(() => {
@@ -27617,7 +27617,7 @@ const No = {
             /* @__PURE__ */ _.jsx(
               ra,
               {
-                size: { xs: 12, md: 6, lg: 4 },
+                size: { xs: 12, md: 6, xl: 4 },
                 sx: { display: "flex" },
                 children: /* @__PURE__ */ _.jsxs(
                   Yr,
@@ -27683,7 +27683,7 @@ const No = {
             /* @__PURE__ */ _.jsx(
               ra,
               {
-                size: { xs: 12, md: 6, lg: 4 },
+                size: { xs: 12, md: 6, xl: 4 },
                 sx: { display: "flex" },
                 children: /* @__PURE__ */ _.jsxs(
                   Yr,
@@ -27749,8 +27749,8 @@ const No = {
             /* @__PURE__ */ _.jsx(
               ra,
               {
-                size: { xs: 0, lg: 4 },
-                sx: { display: { xs: "none", lg: "flex" }, minWidth: "200px" },
+                size: { xs: 0, xl: 4 },
+                sx: { display: { xs: "none", xl: "flex" }, minWidth: "200px" },
                 children: /* @__PURE__ */ _.jsx(
                   Tn,
                   {
