@@ -10,6 +10,14 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AuthWrapper } from "@/components/Auth";
 import App from "@/App";
 
+import createCache from "@emotion/cache";
+import { CacheProvider } from "@emotion/react";
+
+const customCache = createCache({
+  key: "custom",
+  prepend: true
+});
+
 const theme = createTheme();
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -24,13 +32,15 @@ const queryClient = new QueryClient({
 const RootComponent = () => {
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider theme={theme}>
-        <CssBaseline />
-        <ToastContainer />
-        <AuthWrapper>
-          <App />
-        </AuthWrapper>
-      </ThemeProvider>
+      <CacheProvider value={customCache}>
+        <ThemeProvider theme={theme}>
+          <CssBaseline />
+          <ToastContainer />
+          <AuthWrapper>
+            <App />
+          </AuthWrapper>
+        </ThemeProvider>
+      </CacheProvider>
     </QueryClientProvider>
   );
 };
