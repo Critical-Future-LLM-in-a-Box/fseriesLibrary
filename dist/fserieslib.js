@@ -10499,8 +10499,8 @@ const au = {
   modeStorageKey: "mui-mode"
 }, {
   CssVarsProvider: ZT,
-  useColorScheme: x$,
-  getInitColorSchemeScript: S$
+  useColorScheme: S$,
+  getInitColorSchemeScript: w$
 } = H2({
   themeId: Hn,
   // @ts-ignore ignore module augmentation tests
@@ -27771,10 +27771,14 @@ const No = {
       )
     }
   );
-}, h$ = w.memo(p$), m$ = Xb({
-  key: "custom",
-  prepend: !0
-}), y$ = vd(), g$ = new MO({
+}, h$ = w.memo(p$), m$ = () => {
+  const e = typeof document < "u" ? document.querySelector('meta[name="emotion-insertion-point"]') : null;
+  return Xb({
+    key: "fseries-isolated",
+    prepend: !0,
+    insertionPoint: e
+  });
+}, y$ = m$(), g$ = vd(), v$ = new MO({
   defaultOptions: {
     queries: {
       staleTime: 10 * 60 * 1e3,
@@ -27782,9 +27786,13 @@ const No = {
     },
     mutations: {}
   }
-}), v$ = () => /* @__PURE__ */ _.jsx(NO, { client: g$, children: /* @__PURE__ */ _.jsx(Wk, { value: m$, children: /* @__PURE__ */ _.jsxs(qT, { theme: y$, children: [
-  /* @__PURE__ */ _.jsx(TP, {}),
+}), b$ = () => /* @__PURE__ */ _.jsxs(NO, { client: v$, children: [
   /* @__PURE__ */ _.jsx(mO, {}),
   /* @__PURE__ */ _.jsx(_w, { children: /* @__PURE__ */ _.jsx(h$, {}) })
-] }) }) });
-Ub(document.getElementById("root")).render(/* @__PURE__ */ _.jsx(v$, {}));
+] });
+Ub(document.getElementById("root")).render(
+  /* @__PURE__ */ _.jsx(Wk, { value: y$, children: /* @__PURE__ */ _.jsxs(qT, { theme: g$, children: [
+    /* @__PURE__ */ _.jsx(TP, {}),
+    /* @__PURE__ */ _.jsx(b$, {})
+  ] }) })
+);
