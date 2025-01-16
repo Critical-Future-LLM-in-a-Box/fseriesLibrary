@@ -53,13 +53,15 @@ export const useLibrary = () => {
   const mediaLibraryQuery = useQuery({
     queryKey: ["mediaLibrary"],
     queryFn: fetchMediaLibrary,
-    initialData: store.mediaLibrary
+    initialData: store.mediaLibrary,
+    staleTime: 0
   });
 
   const partsLibraryQuery = useQuery({
     queryKey: ["partsLibrary"],
     queryFn: fetchPartsLibrary,
-    initialData: store.partsLibrary
+    initialData: store.partsLibrary,
+    staleTime: 0
   });
 
   // Mutations for media and parts libraries

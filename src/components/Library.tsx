@@ -376,11 +376,13 @@ const Library: React.FC<LibraryProps> = ({
         maxWidth="sm"
         fullWidth
         container={dialogContainerRef.current}
+        sx={{ zIndex: 9999 }}
         PaperProps={{
           sx: {
             bgcolor: "rgba(15,15,15,0.95)",
             backdropFilter: "blur(10px)",
-            borderRadius: 3
+            borderRadius: 3,
+            zIndex: 9999
           }
         }}
       >
@@ -390,7 +392,7 @@ const Library: React.FC<LibraryProps> = ({
         <DialogContent>
           <Stack
             spacing={2}
-            sx={{ mt: 2 }}
+            sx={{ mt: 2, zIndex: 9999 }}
           >
             <TextField
               label="Title"
@@ -466,11 +468,13 @@ const Library: React.FC<LibraryProps> = ({
         maxWidth="sm"
         fullWidth
         container={dialogContainerRef.current}
+        sx={{ zIndex: 9999 }}
         PaperProps={{
           sx: {
             bgcolor: "rgba(15,15,15,0.95)",
             backdropFilter: "blur(10px)",
-            borderRadius: 3
+            borderRadius: 3,
+            zIndex: 9999
           }
         }}
       >
@@ -480,7 +484,7 @@ const Library: React.FC<LibraryProps> = ({
         <DialogContent>
           <Stack
             spacing={2}
-            sx={{ mt: 2 }}
+            sx={{ mt: 2, zIndex: 9999 }}
           >
             <TextField
               label="Title"

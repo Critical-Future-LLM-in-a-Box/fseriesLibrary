@@ -187,12 +187,14 @@ const Recommendations: React.FC<RecommendationsProps> = ({
         maxWidth="lg"
         fullWidth
         container={dialogContainerRef.current}
+        sx={{ zIndex: 9999 }}
         PaperProps={{
           sx: {
             bgcolor: "rgba(15,15,15,0.95)",
             backdropFilter: "blur(10px)",
             borderRadius: 3,
-            maxHeight: "90vh"
+            maxHeight: "90vh",
+            zIndex: 9999
           }
         }}
       >
@@ -219,7 +221,7 @@ const Recommendations: React.FC<RecommendationsProps> = ({
             <CloseIcon />
           </IconButton>
         </DialogTitle>
-        <DialogContent sx={{ p: 3 }}>
+        <DialogContent sx={{ p: 3, zIndex: 9999 }}>
           <Stack
             spacing={3}
             sx={{ mt: 2 }}

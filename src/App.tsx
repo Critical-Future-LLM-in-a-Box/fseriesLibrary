@@ -244,6 +244,7 @@ const App = () => {
                 sx={{
                   flexGrow: 1,
                   borderRadius: 8,
+                  minWidth: "200px",
                   maxHeight: "38vh",
                   overflow: "hidden",
                   bgcolor: "transparent"
@@ -263,6 +264,7 @@ const App = () => {
                 sx={{
                   flexGrow: 1,
                   borderRadius: 8,
+                  minWidth: "200px",
                   maxHeight: "38vh",
                   overflow: "hidden",
                   bgcolor: "transparent"
@@ -292,6 +294,7 @@ const App = () => {
                 sx={{
                   flexGrow: 1,
                   borderRadius: 8,
+                  minWidth: "200px",
                   maxHeight: "38vh",
                   overflow: "hidden",
                   bgcolor: "transparent"
@@ -311,6 +314,7 @@ const App = () => {
                 sx={{
                   flexGrow: 1,
                   borderRadius: 8,
+                  minWidth: "200px",
                   maxHeight: "38vh",
                   overflow: "hidden",
                   bgcolor: "transparent"
