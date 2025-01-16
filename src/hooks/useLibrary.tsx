@@ -1,134 +1,185 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { axiosClient } from "@/lib/axios";
-import { Item } from "@/store";
+import { Item, useStore } from "@/store";
 
-// API endpoints
-export const API_ENDPOINTS = {
-  media: "/api/media",
-  parts: "/api/parts"
-};
-
-// Media fetch function
+// Fetch functions for media and parts libraries
 export const fetchMediaLibrary = async () => {
-  const response = await axiosClient.get(`${API_ENDPOINTS.media}/get`);
+  const response = await axiosClient.get("/api/media/get");
   return response.data;
 };
 
-// Parts fetch function
 export const fetchPartsLibrary = async () => {
-  const response = await axiosClient.get(`${API_ENDPOINTS.parts}/get`);
+  const response = await axiosClient.get("/api/parts/get");
   return response.data;
 };
 
-// Media add Mutation function
+// Mutation functions for media and parts libraries
 export const addMediaItem = async (item: Item) => {
-  const response = await axiosClient.post(`${API_ENDPOINTS.media}/add`, item);
+  const response = await axiosClient.post("/api/media/add", item);
   return response.data;
 };
 
-// Parts add Mutation function
 export const addPartsItem = async (item: Item) => {
-  const response = await axiosClient.post(`${API_ENDPOINTS.parts}/add`, item);
+  const response = await axiosClient.post("/api/parts/add", item);
   return response.data;
 };
 
-// Media update Mutation function
-export const updateMediaItem = async ({
-  id,
-  data
-}: {
-  id: number;
-  data: Partial<Item>;
-}) => {
-  const response = await axiosClient.put(
-    `${API_ENDPOINTS.media}/update/${id}`,
-    data
-  );
+export const updateMediaItem = async (item: Item) => {
+  const response = await axiosClient.put(`/api/media/update/${item.id}`, item);
   return response.data;
 };
 
-// Parts update Mutation function
-export const updatePartsItem = async ({
-  id,
-  data
-}: {
-  id: number;
-  data: Partial<Item>;
-}) => {
-  const response = await axiosClient.put(
-    `${API_ENDPOINTS.parts}/update/${id}`,
-    data
-  );
+export const updatePartsItem = async (item: Item) => {
+  const response = await axiosClient.put(`/api/parts/update/${item.id}`, item);
   return response.data;
 };
 
-// Media delete Mutation function
 export const deleteMediaItem = async (id: number) => {
-  const response = await axiosClient.delete(
-    `${API_ENDPOINTS.media}/delete/${id}`
-  );
+  const response = await axiosClient.delete(`/api/media/delete/${id}`);
   return response.data;
 };
 
-// Parts delete Mutation function
 export const deletePartsItem = async (id: number) => {
-  const response = await axiosClient.delete(
-    `${API_ENDPOINTS.parts}/delete/${id}`
-  );
+  const response = await axiosClient.delete(`/api/parts/delete/${id}`);
   return response.data;
 };
 
-// Custom hook to use library
+// Custom hook
 export const useLibrary = () => {
+  const store = useStore();
   const queryClient = useQueryClient();
 
+  // Queries for media and parts libraries
+  const mediaLibraryQuery = useQuery({
+    queryKey: ["mediaLibrary"],
+    queryFn: fetchMediaLibrary,
+    initialData: store.mediaLibrary
+  });
+
+  const partsLibraryQuery = useQuery({
+    queryKey: ["partsLibrary"],
+    queryFn: fetchPartsLibrary,
+    initialData: store.partsLibrary
+  });
+
+  // Mutations for media and parts libraries
+  const addMediaItemMutation = useMutation({
+    mutationFn: addMediaItem,
+    onSuccess: (data) => {
+      store.addMediaLibraryItem(data);
+      queryClient.invalidateQueries({ queryKey: ["mediaLibrary"] });
+    }
+  });
+
+  const addPartsItemMutation = useMutation({
+    mutationFn: addPartsItem,
+    onSuccess: (data) => {
+      store.addPartsLibraryItem(data);
+      queryClient.invalidateQueries({ queryKey: ["partsLibrary"] });
+    }
+  });
+
+  const updateMediaItemMutation = useMutation({
+    mutationFn: updateMediaItem,
+    onSuccess: (data) => {
+      store.updateMediaLibraryItem(data.id, data);
+      queryClient.invalidateQueries({ queryKey: ["mediaLibrary"] });
+    }
+  });
+
+  const updatePartsItemMutation = useMutation({
+    mutationFn: updatePartsItem,
+    onSuccess: (data) => {
+      store.updatePartsLibraryItem(data.id, data);
+      queryClient.invalidateQueries({ queryKey: ["partsLibrary"] });
+    }
+  });
+
+  const deleteMediaItemMutation = useMutation({
+    mutationFn: deleteMediaItem,
+    onSuccess: (_, id) => {
+      store.deleteMediaLibraryItem(id);
+      queryClient.invalidateQueries({ queryKey: ["mediaLibrary"] });
+    }
+  });
+
+  const deletePartsItemMutation = useMutation({
+    mutationFn: deletePartsItem,
+    onSuccess: (_, id) => {
+      store.deletePartsLibraryItem(id);
+      queryClient.invalidateQueries({ queryKey: ["partsLibrary"] });
+    }
+  });
+
+  // Mutations for recommendations (client-side only)
+  const addMediaRecommendationMutation = useMutation({
+    mutationFn: (item: Item) => Promise.resolve(item),
+    onSuccess: (data) => {
+      store.addMediaRecommendation(data);
+      queryClient.invalidateQueries({ queryKey: ["mediaRecommendations"] });
+    }
+  });
+
+  const addPartsRecommendationMutation = useMutation({
+    mutationFn: (item: Item) => Promise.resolve(item),
+    onSuccess: (data) => {
+      store.addPartsRecommendation(data);
+      queryClient.invalidateQueries({ queryKey: ["partsRecommendations"] });
+    }
+  });
+
+  const updateMediaRecommendationMutation = useMutation({
+    mutationFn: (item: Item) => Promise.resolve(item),
+    onSuccess: (data) => {
+      store.updateMediaRecommendation(data.id, data);
+      queryClient.invalidateQueries({ queryKey: ["mediaRecommendations"] });
+    }
+  });
+
+  const updatePartsRecommendationMutation = useMutation({
+    mutationFn: (item: Item) => Promise.resolve(item),
+    onSuccess: (data) => {
+      store.updatePartsRecommendation(data.id, data);
+      queryClient.invalidateQueries({ queryKey: ["partsRecommendations"] });
+    }
+  });
+
+  const deleteMediaRecommendationMutation = useMutation({
+    mutationFn: (id: number) => Promise.resolve(id),
+    onSuccess: (id) => {
+      store.deleteMediaRecommendation(id);
+      queryClient.invalidateQueries({ queryKey: ["mediaRecommendations"] });
+    }
+  });
+
+  const deletePartsRecommendationMutation = useMutation({
+    mutationFn: (id: number) => Promise.resolve(id),
+    onSuccess: (id) => {
+      store.deletePartsRecommendation(id);
+      queryClient.invalidateQueries({ queryKey: ["partsRecommendations"] });
+    }
+  });
+
+  // Return the necessary data and mutation functions
   return {
-    getMediaLibrary: () =>
-      useQuery({ queryKey: ["mediaLibrary"], queryFn: fetchMediaLibrary }),
+    mediaLibrary: mediaLibraryQuery.data,
+    partsLibrary: partsLibraryQuery.data,
+    mediaRecommendations: store.mediaRecommendations,
+    partsRecommendations: store.partsRecommendations,
 
-    getPartsLibrary: () =>
-      useQuery({ queryKey: ["partsLibrary"], queryFn: fetchPartsLibrary }),
+    addMediaItem: addMediaItemMutation.mutateAsync,
+    addPartsItem: addPartsItemMutation.mutateAsync,
+    addMediaRecommendation: addMediaRecommendationMutation.mutateAsync,
+    addPartsRecommendation: addPartsRecommendationMutation.mutateAsync,
 
-    addMediaItem: () =>
-      useMutation({
-        mutationFn: addMediaItem,
-        onSuccess: () =>
-          queryClient.invalidateQueries({ queryKey: ["mediaLibrary"] })
-      }),
+    updateMediaItem: updateMediaItemMutation.mutateAsync,
+    updatePartsItem: updatePartsItemMutation.mutateAsync,
+    updateMediaRecommendation: updateMediaRecommendationMutation.mutateAsync,
+    updatePartsRecommendation: updatePartsRecommendationMutation.mutateAsync,
 
-    addPartsItem: () =>
-      useMutation({
-        mutationFn: addPartsItem,
-        onSuccess: () =>
-          queryClient.invalidateQueries({ queryKey: ["partsLibrary"] })
-      }),
-
-    updateMediaItem: () =>
-      useMutation({
-        mutationFn: updateMediaItem,
-        onSuccess: () =>
-          queryClient.invalidateQueries({ queryKey: ["mediaLibrary"] })
-      }),
-
-    updatePartsItem: () =>
-      useMutation({
-        mutationFn: updatePartsItem,
-        onSuccess: () =>
-          queryClient.invalidateQueries({ queryKey: ["partsLibrary"] })
-      }),
-
-    deleteMediaItem: () =>
-      useMutation({
-        mutationFn: deleteMediaItem,
-        onSuccess: () =>
-          queryClient.invalidateQueries({ queryKey: ["mediaLibrary"] })
-      }),
-
-    deletePartsItem: () =>
-      useMutation({
-        mutationFn: deletePartsItem,
-        onSuccess: () =>
-          queryClient.invalidateQueries({ queryKey: ["partsLibrary"] })
-      })
+    deleteMediaItem: deleteMediaItemMutation.mutateAsync,
+    deletePartsItem: deletePartsItemMutation.mutateAsync,
+    deleteMediaRecommendation: deleteMediaRecommendationMutation.mutateAsync,
+    deletePartsRecommendation: deletePartsRecommendationMutation.mutateAsync
   };
 };

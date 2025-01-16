@@ -4,7 +4,7 @@ import { useStore } from "@/store";
 import { User } from "@/store";
 
 export const useAuth = () => {
-  const { setUser, deleteUser } = useStore();
+  const { setUser } = useStore();
 
   return {
     signup: async (data: Partial<User>) => {
@@ -13,7 +13,7 @@ export const useAuth = () => {
         .post("/api/auth/signup", data)
 
         .catch((error) => {
-          const errorMessage = error.response?.data?.error?.messeage;
+          const errorMessage = error.response?.data?.error?.message;
 
           throw new Error(errorMessage);
         });
@@ -27,7 +27,7 @@ export const useAuth = () => {
         .post("/api/auth/login", data)
 
         .catch((error) => {
-          const errorMessage = error.response?.data?.error?.messeage;
+          const errorMessage = error.response?.data?.error?.message;
 
           throw new Error(errorMessage);
         });
@@ -45,12 +45,12 @@ export const useAuth = () => {
         .post("/api/auth/logout")
 
         .catch((error) => {
-          const errorMessage = error.response?.data?.error?.messeage;
+          const errorMessage = error.response?.data?.error?.message;
 
           throw new Error(errorMessage);
         });
 
-      deleteUser();
+      setUser();
 
       return response.data;
     }

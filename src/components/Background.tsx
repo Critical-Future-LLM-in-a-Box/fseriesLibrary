@@ -6,75 +6,23 @@ interface BackgroundProps {
 }
 
 const Background: React.FC<BackgroundProps> = ({ children }) => {
-  const [showOverlay, setShowOverlay] = React.useState(true);
-
-  React.useEffect(() => {
-    const timer = setTimeout(() => setShowOverlay(false), 5000);
-    return () => clearTimeout(timer);
-  }, []);
-
   return (
-    <Box
-      sx={{
-        position: "relative",
-        width: "100vw",
-        minHeight: "100vh",
-        overflowY: "auto",
-        overflowX: "hidden"
-      }}
-    >
+    <>
       <Box
+        component="img"
+        src={
+          "https://critical-future-llm-in-a-box.github.io/fseriesLibrary/public/fseries.png"
+        }
+        alt="background"
         sx={{
-          position: "fixed",
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          width: "100vw",
-          height: "100vh",
-          zIndex: 0
+          width: "100%",
+          height: "100%",
+          objectFit: "cover",
+          position: "absolute"
         }}
-      >
-        <Box
-          component="img"
-          src={
-            "https://critical-future-llm-in-a-box.github.io/fseriesLibrary/public/fseries.png"
-          }
-          alt="background"
-          sx={{
-            width: "100vw",
-            height: "100vh",
-            objectFit: "cover",
-            position: "absolute",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0
-          }}
-        />
-        {showOverlay && (
-          <Box
-            component="img"
-            src={
-              "https://critical-future-llm-in-a-box.github.io/fseriesLibrary/public/fseries.gif"
-            }
-            alt="overlay"
-            sx={{
-              width: "100vw",
-              height: "100vh",
-              objectFit: "cover",
-              position: "absolute",
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              zIndex: 1
-            }}
-          />
-        )}
-      </Box>
-      <Box sx={{ position: "relative", zIndex: 2 }}>{children}</Box>
-    </Box>
+      />
+      {children}
+    </>
   );
 };
 

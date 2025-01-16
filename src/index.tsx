@@ -5,9 +5,9 @@ import { CssBaseline } from "@mui/material";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { CacheProvider } from "@emotion/react";
 import createCache from "@emotion/cache";
-
 import { ToastContainer } from "react-toastify";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import toastifyStyles from "react-toastify/dist/ReactToastify.css?inline";
 
 import App from "@/App";
 import { AuthWrapper } from "@/components/Auth";
@@ -35,6 +35,10 @@ const RootComponent = () => {
     if (shadowHost.current && !shadowHost.current.shadowRoot) {
       const shadowRoot = shadowHost.current.attachShadow({ mode: "open" });
 
+      const styleElement = document.createElement("style");
+      styleElement.textContent = toastifyStyles;
+      shadowRoot.appendChild(styleElement);
+
       const shadowCache = createCache({
         key: "mui",
         container: shadowRoot
@@ -60,7 +64,13 @@ const RootComponent = () => {
 
   return (
     <div
-      style={{ overflow: "clip" }}
+      style={{
+        overflow: "clip",
+        width: "100%",
+        height: "100%",
+        margin: 0,
+        padding: 0
+      }}
       ref={shadowHost}
     ></div>
   );

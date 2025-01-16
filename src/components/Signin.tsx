@@ -58,16 +58,25 @@ const SignInForm: React.FC<SignInFormProps> = ({
 
   return (
     <Box
-      display="flex"
-      justifyContent="center"
-      alignItems="center"
-      minHeight="100vh"
-      sx={{ background: "rgba(0, 0, 0, 0.5)", backdropFilter: "blur(10px)" }}
+      sx={{
+        background: "rgba(0, 0, 0, 0.5)",
+        backdropFilter: "blur(10px)",
+        p: 0,
+        m: 0,
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        width: "100vw",
+        height: "100vh",
+        flex: 1,
+        flexDirection: "column"
+      }}
     >
       <Paper
         elevation={6}
         sx={{
           p: 4,
+          m: 2,
           width: "100%",
           maxWidth: 400,
           borderRadius: 2,

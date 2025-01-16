@@ -1,530 +1,569 @@
-import React, { useState } from "react";
+import React, { useState, useRef, memo } from "react";
 import {
+  Stack,
   Box,
   Paper,
   Typography,
-  Button,
-  Stack,
-  Avatar,
   IconButton,
+  useTheme,
   Dialog,
   DialogTitle,
   DialogContent,
-  DialogActions,
   TextField,
-  useTheme
+  Button,
+  DialogActions,
+  Grid
 } from "@mui/material";
-import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
-import StarIcon from "@mui/icons-material/Star";
-import MovieIcon from "@mui/icons-material/Movie";
-import BuildIcon from "@mui/icons-material/Build";
+import FullscreenIcon from "@mui/icons-material/Fullscreen";
+import FullscreenExitIcon from "@mui/icons-material/FullscreenExit";
 import CloseIcon from "@mui/icons-material/Close";
-import OpenInNewIcon from "@mui/icons-material/OpenInNew";
+import { Item } from "@/store";
 
-const isImageUrl = (url: string) => {
-  return /\.(jpg|jpeg|png|webp|avif|gif|svg)$/.test(url);
-};
+interface LibraryProps {
+  title?: string;
+  items: Item[] | null;
+  onAddItem?: (itemData: Item) => void;
+  onEditItem?: (itemData: Item) => void;
+  onRemoveItem?: (id: number) => void;
+}
 
-const isVideoUrl = (url: string) => {
-  return /\.(mp4|webm|ogg)$/.test(url);
-};
-
-const getYoutubeVideoId = (url: string) => {
-  const match = url.match(
-    /^.*(youtu\.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/
-  );
+const getYoutubeVideoId = (url: string): string | null => {
+  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+  const match = url.match(regExp);
   return match && match[2].length === 11 ? match[2] : null;
 };
 
-const ContentPreview: React.FC<{ url: string }> = ({ url }) => {
-  const youtubeId = getYoutubeVideoId(url);
-
-  if (youtubeId) {
-    return (
-      <Box sx={{ width: "100%", aspectRatio: "16/9", mt: 2 }}>
-        <iframe
-          width="100%"
-          height="100%"
-          src={`https://www.youtube.com/embed/${youtubeId}`}
-          title="YouTube video player"
-          allowFullScreen
-        />
-      </Box>
-    );
-  }
-
-  if (isImageUrl(url)) {
-    return (
-      <Box
-        component="img"
-        src={url}
-        alt="Content preview"
-        sx={{
-          mt: 2,
-          maxWidth: "100%",
-          maxHeight: "400px",
-          objectFit: "contain",
-          borderRadius: 1
-        }}
-      />
-    );
-  }
-
-  if (isVideoUrl(url)) {
-    return (
-      <Box
-        component="video"
-        src={url}
-        controls
-        sx={{
-          mt: 2,
-          maxWidth: "100%",
-          maxHeight: "400px",
-          borderRadius: 1
-        }}
-      />
-    );
-  }
-
-  return null;
-};
-
-interface Item {
-  id: number;
-  title: string;
-  description: string;
-  url: string;
-}
-
-interface LibraryProps {
-  mode: "library" | "recommendation";
-  items: Item[] | null;
-  title?: string;
-  onAddItem?: (newItem: Omit<Item, "id">) => void;
-  onEditItem?: (id: number, updatedItem: Omit<Item, "id">) => void;
-  onRemoveItem?: (id: number) => void;
-  onAddToLibrary?: (item: Item) => void;
-}
-
 const Library: React.FC<LibraryProps> = ({
-  mode,
+  title = "Library",
   items,
-  title = mode === "library" ? "My Library" : "Recommendations",
   onAddItem,
   onEditItem,
-  onRemoveItem,
-  onAddToLibrary
+  onRemoveItem
 }) => {
   const theme = useTheme();
-  const [open, setOpen] = useState(false);
-  const [isEditMode, setIsEditMode] = useState(false);
-  const [editItemId, setEditItemId] = useState<number | null>(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<Item | null>(null);
-  const [formState, setFormState] = useState<Omit<Item, "id">>({
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [newItem, setNewItem] = useState<Partial<Item>>({
     title: "",
     description: "",
-    url: ""
-  });
-  const [errors, setErrors] = useState({
-    title: "",
-    description: "",
-    url: ""
+    url: "",
+    image: ""
   });
 
-  const validateForm = () => {
-    const newErrors = {
-      title: "",
-      description: "",
-      url: ""
-    };
+  const toggleFullscreen = () => setIsFullscreen(!isFullscreen);
 
-    // Title validation: at least 3 characters
-    if (!formState.title || formState.title.length < 3) {
-      newErrors.title = "Title must be at least 3 characters long";
+  const dialogContainerRef = useRef<HTMLDivElement>(null);
+
+  const handleAddItem = () => {
+    if (onAddItem) {
+      onAddItem({ ...newItem, id: Date.now() } as Item);
+      setIsAddDialogOpen(false);
+      setNewItem({ title: "", description: "", url: "", image: "" });
     }
-
-    // Description validation: at least 10 characters
-    if (!formState.description || formState.description.length < 10) {
-      newErrors.description = "Description must be at least 10 characters long";
-    }
-
-    // URL validation with more robust regex
-    if (formState.url) {
-      const urlRegex = new RegExp(
-        "^(https?:\\/\\/)?" + // protocol
-          "((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|" + // domain name
-          "((\\d{1,3}\\.){3}\\d{1,3}))" + // OR ip (v4) address
-          "(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*" + // port and path
-          "(\\?[;&a-z\\d%_.~+=-]*)?" + // query string
-          "(\\#[-a-z\\d_]*)?$", // fragment locator
-        "i"
-      );
-
-      if (!urlRegex.test(formState.url)) {
-        newErrors.url = "Please enter a valid URL (e.g., https://example.com)";
-      }
-    }
-
-    setErrors(newErrors);
-    return !Object.values(newErrors).some((error) => error !== "");
   };
 
-  const handleOpenAddModal = () => {
-    setIsEditMode(false);
-    setEditItemId(null);
-    setFormState({ title: "", description: "", url: "" });
-    setOpen(true);
-  };
-
-  const handleOpenEditModal = (item: Item) => {
-    setIsEditMode(true);
-    setEditItemId(item.id);
-    setFormState({
-      title: item.title,
-      description: item.description,
-      url: item.url
-    });
-    setOpen(true);
-  };
-
-  const handleCloseModal = () => {
-    setOpen(false);
-    setIsEditMode(false);
-    setEditItemId(null);
-  };
-
-  const handleSave = () => {
-    if (!validateForm()) {
-      return;
+  const handleEditItem = () => {
+    if (onEditItem && selectedItem) {
+      onEditItem(selectedItem);
+      setIsEditDialogOpen(false);
     }
-
-    if (mode === "library") {
-      if (isEditMode && editItemId !== null && onEditItem) {
-        onEditItem(editItemId, formState);
-      } else if (!isEditMode && onAddItem) {
-        onAddItem(formState);
-      }
-    }
-    handleCloseModal();
   };
 
-  const IconForType =
-    mode === "recommendation"
-      ? StarIcon
-      : title.toLowerCase().includes("media")
-        ? MovieIcon
-        : BuildIcon;
+  const handleDeleteItem = (id: number) => {
+    if (onRemoveItem) {
+      onRemoveItem(id);
+    }
+  };
+
+  const handleOpenEditDialog = (item: Item) => {
+    setSelectedItem(item);
+    setIsEditDialogOpen(true);
+  };
 
   return (
-    <Stack
-      spacing={2}
-      sx={{
-        width: "100%",
-        height: "100%",
-        borderRadius: 2,
-        bgcolor: "rgba(20,20,20,0.85)",
-        backdropFilter: "blur(5px)",
-        p: 1,
-        boxSizing: "border-box"
-      }}
-    >
-      <Paper
-        elevation={3}
+    <div style={{ height: "100%" }}>
+      <Stack
+        spacing={2}
         sx={{
+          width: "100%",
+          height: "100%",
+          borderRadius: 3,
+          bgcolor: "rgba(15,15,15,0.7)",
+          backdropFilter: "blur(10px)",
           p: 2,
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          bgcolor: theme.palette.grey[900],
-          color: theme.palette.grey[100]
+          boxSizing: "border-box"
         }}
       >
-        <Typography
-          variant="h5"
-          fontWeight="bold"
+        {/* Header */}
+        <Paper
+          elevation={0}
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            p: 1,
+            bgcolor: "rgba(30,30,30,0.8)",
+            borderRadius: 2
+          }}
         >
-          {title}
-        </Typography>
-        {mode === "library" && (
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={handleOpenAddModal}
-            sx={{
-              "bgcolor": theme.palette.grey[800],
-              "&:hover": { bgcolor: theme.palette.grey[700] }
-            }}
+          <Typography
+            variant="h6"
+            fontWeight="bold"
+            sx={{ ml: 1, color: "#efefef" }}
           >
-            Add New Item
-          </Button>
-        )}
-      </Paper>
-
-      <Box sx={{ flexGrow: 1, overflowY: "auto", pr: 1 }}>
-        <Stack spacing={1}>
-          {items?.map((item) => (
-            <Paper
-              key={`${mode}-${item.id}`}
-              elevation={3}
-              onClick={() => setSelectedItem(item)}
+            {title}
+          </Typography>
+          <Stack
+            direction="row"
+            spacing={1}
+          >
+            {onAddItem && (
+              <IconButton
+                size="small"
+                onClick={() => setIsAddDialogOpen(true)}
+                sx={{
+                  "color": theme.palette.grey[300],
+                  "&:hover": { color: theme.palette.primary.main }
+                }}
+              >
+                <AddCircleIcon />
+              </IconButton>
+            )}
+            <IconButton
+              size="small"
+              onClick={toggleFullscreen}
               sx={{
-                "p": 2,
-                "position": "relative",
-                "bgcolor": theme.palette.grey[800],
-                "color": theme.palette.grey[100],
-                "cursor": "pointer",
-                "transition": "transform 0.1s ease-in-out, box-shadow 0.1s",
-                "&:hover": {
-                  transform: "scale(1.01)",
-                  boxShadow: `0 4px 12px ${theme.palette.grey[900]}`
-                }
+                "color": theme.palette.grey[300],
+                "&:hover": { color: theme.palette.primary.main }
               }}
             >
-              <Stack
-                direction="row"
-                spacing={2}
-                alignItems="center"
+              {isFullscreen ? <FullscreenExitIcon /> : <FullscreenIcon />}
+            </IconButton>
+          </Stack>
+        </Paper>
+
+        {/* Items List */}
+        <Box sx={{ flexGrow: 1, overflowY: "auto", pr: 1 }}>
+          <Stack spacing={1.5}>
+            {items?.map((item) => (
+              <Paper
+                key={item.id}
+                elevation={3}
+                sx={{
+                  "p": 2,
+                  "bgcolor": "rgba(30,30,30,0.8)",
+                  "color": theme.palette.grey[100],
+                  "display": "flex",
+                  "gap": 2,
+                  "borderRadius": 2,
+                  "transition": "all 0.2s ease-in-out",
+                  "&:hover": {
+                    bgcolor: "rgba(40,40,40,0.9)",
+                    transform: "translateX(4px)"
+                  }
+                }}
               >
-                <Avatar
-                  sx={{
-                    bgcolor: theme.palette.grey[700],
-                    flexShrink: 0,
-                    color: theme.palette.grey[50]
-                  }}
-                >
-                  <IconForType />
-                </Avatar>
-                <Stack
-                  spacing={0.5}
-                  sx={{ flex: 1, minWidth: 0 }}
-                >
+                <Box sx={{ flexGrow: 1, minWidth: 0 }}>
                   <Typography
                     variant="subtitle1"
                     fontWeight="bold"
-                    noWrap
+                    sx={{ mb: 0.75 }}
                   >
                     {item.title}
                   </Typography>
                   <Typography
                     variant="body2"
-                    noWrap
+                    sx={{
+                      color: theme.palette.grey[300],
+                      display: "-webkit-box",
+                      WebkitLineClamp: 2,
+                      WebkitBoxOrient: "vertical",
+                      overflow: "hidden"
+                    }}
                   >
                     {item.description}
                   </Typography>
-                  {item.url && (
-                    <Typography
-                      variant="caption"
-                      component="a"
-                      href={item.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      onClick={(e) => e.stopPropagation()}
-                      sx={{
-                        "textDecoration": "none",
-                        "color": theme.palette.primary.light,
-                        "&:hover": { textDecoration: "underline" }
-                      }}
-                    >
-                      Visit
-                    </Typography>
-                  )}
-                </Stack>
-
-                {mode === "library" ? (
-                  <Stack
-                    direction="row"
-                    spacing={1}
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <IconButton
-                      size="small"
-                      onClick={() => handleOpenEditModal(item)}
-                      sx={{
-                        "color": theme.palette.grey[200],
-                        "&:hover": { color: theme.palette.info.main }
-                      }}
-                    >
-                      <EditIcon fontSize="small" />
-                    </IconButton>
-                    <IconButton
-                      size="small"
-                      onClick={() => onRemoveItem?.(item.id)}
-                      sx={{
-                        "color": theme.palette.grey[200],
-                        "&:hover": { color: theme.palette.error.light }
-                      }}
-                    >
-                      <DeleteIcon fontSize="small" />
-                    </IconButton>
-                  </Stack>
-                ) : (
+                </Box>
+                <Stack
+                  direction="row"
+                  spacing={1}
+                >
                   <IconButton
                     size="small"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onAddToLibrary?.(item);
-                    }}
+                    onClick={() => handleOpenEditDialog(item)}
                     sx={{
-                      "color": theme.palette.grey[200],
-                      "&:hover": { color: theme.palette.success.light }
+                      "color": theme.palette.grey[300],
+                      "&:hover": { color: theme.palette.primary.main }
                     }}
                   >
-                    <AddCircleIcon fontSize="small" />
+                    <EditIcon />
                   </IconButton>
-                )}
-              </Stack>
-            </Paper>
-          ))}
-        </Stack>
-      </Box>
+                  <IconButton
+                    size="small"
+                    onClick={() => handleDeleteItem(item.id)}
+                    sx={{
+                      "color": theme.palette.grey[300],
+                      "&:hover": { color: theme.palette.error.main }
+                    }}
+                  >
+                    <DeleteIcon />
+                  </IconButton>
+                </Stack>
+              </Paper>
+            ))}
+          </Stack>
+        </Box>
+      </Stack>
 
+      <Box ref={dialogContainerRef} />
+
+      {/* Fullscreen Dialog */}
       <Dialog
-        open={!!selectedItem}
-        onClose={() => setSelectedItem(null)}
-        maxWidth="md"
+        open={isFullscreen}
+        onClose={() => setIsFullscreen(false)}
+        maxWidth="lg"
         fullWidth
+        container={dialogContainerRef.current}
         PaperProps={{
           sx: {
-            bgcolor: theme.palette.grey[900],
-            color: theme.palette.grey[100]
+            bgcolor: "rgba(15,15,15,0.95)",
+            backdropFilter: "blur(10px)",
+            borderRadius: 3,
+            maxHeight: "90vh"
           }
         }}
       >
-        {selectedItem && (
-          <>
-            <DialogTitle
-              sx={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                borderBottom: `1px solid ${theme.palette.grey[800]}`
-              }}
-            >
-              <Typography>{selectedItem.title}</Typography>
-              <IconButton
-                onClick={() => setSelectedItem(null)}
-                sx={{ color: theme.palette.grey[300] }}
-              >
-                <CloseIcon />
-              </IconButton>
-            </DialogTitle>
-            <DialogContent sx={{ mt: 2 }}>
-              <Stack spacing={3}>
-                <Typography variant="body1">
-                  {selectedItem.description}
-                </Typography>
-                {selectedItem.url && (
-                  <>
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                      <Typography
-                        variant="subtitle2"
-                        color={theme.palette.grey[400]}
+        <DialogTitle
+          sx={{
+            borderBottom: "1px solid rgba(255,255,255,0.1)",
+            p: 3,
+            color: theme.palette.grey[100],
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center"
+          }}
+        >
+          <Typography fontWeight="bold">{title}</Typography>
+          <IconButton
+            onClick={() => setIsFullscreen(false)}
+            sx={{
+              "color": theme.palette.grey[300],
+              "&:hover": { color: theme.palette.error.main }
+            }}
+          >
+            <CloseIcon />
+          </IconButton>
+        </DialogTitle>
+        <DialogContent sx={{ p: 3 }}>
+          <Stack spacing={3}>
+            {items?.map((item) => {
+              const youtubeId = item.url ? getYoutubeVideoId(item.url) : null;
+
+              return (
+                <Paper
+                  key={item.id}
+                  elevation={3}
+                  sx={{
+                    p: 3,
+                    bgcolor: "rgba(30,30,30,0.8)",
+                    color: theme.palette.grey[100],
+                    borderRadius: 2
+                  }}
+                >
+                  <Grid
+                    container
+                    spacing={3}
+                  >
+                    {youtubeId && (
+                      <Grid
+                        item
+                        xs={12}
+                        md={6}
                       >
-                        Source URL:
-                      </Typography>
-                      <Typography
-                        component="a"
-                        href={selectedItem.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
+                        <Box
+                          sx={{
+                            position: "relative",
+                            paddingTop: "56.25%",
+                            width: "100%",
+                            borderRadius: 2,
+                            overflow: "hidden"
+                          }}
+                        >
+                          <iframe
+                            title={`YouTube video player - ${item.title}`}
+                            style={{
+                              position: "absolute",
+                              top: 0,
+                              left: 0,
+                              width: "100%",
+                              height: "100%",
+                              border: "none"
+                            }}
+                            src={`https://www.youtube.com/embed/${youtubeId}`}
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowFullScreen
+                          />
+                        </Box>
+                      </Grid>
+                    )}
+                    <Grid
+                      item
+                      xs={12}
+                      md={youtubeId ? 6 : 12}
+                    >
+                      <Box
                         sx={{
-                          "display": "flex",
-                          "alignItems": "center",
-                          "gap": 0.5,
-                          "color": theme.palette.primary.light,
-                          "textDecoration": "none",
-                          "&:hover": { textDecoration: "underline" }
+                          height: "100%",
+                          display: "flex",
+                          flexDirection: "column"
                         }}
                       >
-                        {selectedItem.url}
-                        <OpenInNewIcon sx={{ fontSize: 16 }} />
-                      </Typography>
-                    </Box>
-                    <ContentPreview url={selectedItem.url} />
-                  </>
-                )}
-              </Stack>
-            </DialogContent>
-          </>
-        )}
+                        <Box sx={{ flexGrow: 1 }}>
+                          <Typography
+                            variant="h6"
+                            fontWeight="bold"
+                            sx={{ mb: 2 }}
+                          >
+                            {item.title}
+                          </Typography>
+                          <Typography
+                            variant="body1"
+                            sx={{
+                              color: theme.palette.grey[300],
+                              lineHeight: 1.6,
+                              mb: 2
+                            }}
+                          >
+                            {item.description}
+                          </Typography>
+                          {item.url && !youtubeId && (
+                            <Typography
+                              component="a"
+                              href={item.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              sx={{
+                                "color": theme.palette.primary.main,
+                                "textDecoration": "none",
+                                "&:hover": {
+                                  textDecoration: "underline"
+                                }
+                              }}
+                            >
+                              Visit Resource
+                            </Typography>
+                          )}
+                        </Box>
+                      </Box>
+                    </Grid>
+                  </Grid>
+                </Paper>
+              );
+            })}
+          </Stack>
+        </DialogContent>
       </Dialog>
 
+      {/* Add Item Dialog */}
       <Dialog
-        open={open}
-        onClose={handleCloseModal}
-        fullWidth
+        open={isAddDialogOpen}
+        onClose={() => setIsAddDialogOpen(false)}
         maxWidth="sm"
+        fullWidth
+        container={dialogContainerRef.current}
         PaperProps={{
           sx: {
-            bgcolor: theme.palette.grey[900],
-            color: theme.palette.grey[100]
+            bgcolor: "rgba(15,15,15,0.95)",
+            backdropFilter: "blur(10px)",
+            borderRadius: 3
           }
         }}
       >
-        <DialogTitle>{isEditMode ? "Edit Item" : "Add New Item"}</DialogTitle>
+        <DialogTitle sx={{ color: theme.palette.grey[100] }}>
+          Add New Item
+        </DialogTitle>
         <DialogContent>
-          <TextField
-            label="Title"
-            value={formState.title}
-            onChange={(e) =>
-              setFormState({ ...formState, title: e.target.value })
-            }
-            error={!!errors.title}
-            helperText={errors.title}
-            fullWidth
-            margin="normal"
-            sx={{
-              "& .MuiInputBase-root": { color: theme.palette.grey[100] },
-              "& .MuiFormLabel-root": { color: theme.palette.grey[400] }
-            }}
-          />
-          <TextField
-            label="Description"
-            value={formState.description}
-            onChange={(e) =>
-              setFormState({ ...formState, description: e.target.value })
-            }
-            error={!!errors.description}
-            helperText={errors.description}
-            fullWidth
-            margin="normal"
-            multiline
-            rows={4}
-            sx={{
-              "& .MuiInputBase-root": { color: theme.palette.grey[100] },
-              "& .MuiFormLabel-root": { color: theme.palette.grey[400] }
-            }}
-          />
-          <TextField
-            label="URL"
-            value={formState.url}
-            onChange={(e) =>
-              setFormState({ ...formState, url: e.target.value })
-            }
-            error={!!errors.url}
-            helperText={errors.url}
-            fullWidth
-            margin="normal"
-            sx={{
-              "& .MuiInputBase-root": { color: theme.palette.grey[100] },
-              "& .MuiFormLabel-root": { color: theme.palette.grey[400] }
-            }}
-          />
+          <Stack
+            spacing={2}
+            sx={{ mt: 2 }}
+          >
+            <TextField
+              label="Title"
+              value={newItem.title}
+              onChange={(e) =>
+                setNewItem({ ...newItem, title: e.target.value })
+              }
+              fullWidth
+              sx={{
+                "input": { color: theme.palette.grey[100] },
+                "& .MuiInputLabel-root": { color: theme.palette.grey[100] }
+              }}
+            />
+            <TextField
+              label="Description"
+              value={newItem.description}
+              onChange={(e) =>
+                setNewItem({ ...newItem, description: e.target.value })
+              }
+              fullWidth
+              multiline
+              rows={3}
+              sx={{
+                "textarea": { color: theme.palette.grey[100] },
+                "& .MuiInputLabel-root": { color: theme.palette.grey[100] }
+              }}
+            />
+            <TextField
+              label="URL"
+              value={newItem.url}
+              onChange={(e) => setNewItem({ ...newItem, url: e.target.value })}
+              fullWidth
+              sx={{
+                "input": { color: theme.palette.grey[100] },
+                "& .MuiInputLabel-root": { color: theme.palette.grey[100] }
+              }}
+            />
+            <TextField
+              label="Image URL"
+              value={newItem.image}
+              onChange={(e) =>
+                setNewItem({ ...newItem, image: e.target.value })
+              }
+              fullWidth
+              sx={{
+                "input": { color: theme.palette.grey[100] },
+                "& .MuiInputLabel-root": { color: theme.palette.grey[100] }
+              }}
+            />
+          </Stack>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleCloseModal}>Cancel</Button>
           <Button
-            onClick={handleSave}
-            variant="contained"
+            onClick={() => setIsAddDialogOpen(false)}
+            sx={{ color: theme.palette.grey[300] }}
           >
-            {isEditMode ? "Save Changes" : "Add Item"}
+            Cancel
+          </Button>
+          <Button
+            onClick={handleAddItem}
+            variant="contained"
+            sx={{ bgcolor: theme.palette.primary.main, color: "#fff" }}
+          >
+            Add
           </Button>
         </DialogActions>
       </Dialog>
-    </Stack>
+
+      {/* Edit Item Dialog */}
+      <Dialog
+        open={isEditDialogOpen}
+        onClose={() => setIsEditDialogOpen(false)}
+        maxWidth="sm"
+        fullWidth
+        container={dialogContainerRef.current}
+        PaperProps={{
+          sx: {
+            bgcolor: "rgba(15,15,15,0.95)",
+            backdropFilter: "blur(10px)",
+            borderRadius: 3
+          }
+        }}
+      >
+        <DialogTitle sx={{ color: theme.palette.grey[100] }}>
+          Edit Item
+        </DialogTitle>
+        <DialogContent>
+          <Stack
+            spacing={2}
+            sx={{ mt: 2 }}
+          >
+            <TextField
+              label="Title"
+              value={selectedItem?.title || ""}
+              onChange={(e) =>
+                setSelectedItem({
+                  ...selectedItem!,
+                  title: e.target.value
+                })
+              }
+              fullWidth
+              sx={{
+                "input": { color: theme.palette.grey[100] },
+                "& .MuiInputLabel-root": { color: theme.palette.grey[100] }
+              }}
+            />
+            <TextField
+              label="Description"
+              value={selectedItem?.description || ""}
+              onChange={(e) =>
+                setSelectedItem({
+                  ...selectedItem!,
+                  description: e.target.value
+                })
+              }
+              fullWidth
+              multiline
+              rows={3}
+              sx={{
+                "textarea": { color: theme.palette.grey[100] },
+                "& .MuiInputLabel-root": { color: theme.palette.grey[100] }
+              }}
+            />
+            <TextField
+              label="URL"
+              value={selectedItem?.url || ""}
+              onChange={(e) =>
+                setSelectedItem({
+                  ...selectedItem!,
+                  url: e.target.value
+                })
+              }
+              fullWidth
+              sx={{
+                "input": { color: theme.palette.grey[100] },
+                "& .MuiInputLabel-root": { color: theme.palette.grey[100] }
+              }}
+            />
+            <TextField
+              label="Image URL"
+              value={selectedItem?.image || ""}
+              onChange={(e) =>
+                setSelectedItem({
+                  ...selectedItem!,
+                  image: e.target.value
+                })
+              }
+              fullWidth
+              sx={{
+                "input": { color: theme.palette.grey[100] },
+                "& .MuiInputLabel-root": { color: theme.palette.grey[100] }
+              }}
+            />
+          </Stack>
+        </DialogContent>
+        <DialogActions>
+          <Button
+            onClick={() => setIsEditDialogOpen(false)}
+            sx={{ color: theme.palette.grey[300] }}
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={handleEditItem}
+            variant="contained"
+            sx={{ bgcolor: theme.palette.primary.main, color: "#fff" }}
+          >
+            Save
+          </Button>
+        </DialogActions>
+      </Dialog>
+    </div>
   );
 };
 
-export default Library;
+export default memo(Library);

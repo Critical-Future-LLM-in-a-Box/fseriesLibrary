@@ -41640,7 +41640,7 @@ const r7 = ({ message: n }) => {
               maxHeight: "100%",
               maxWidth: "100%",
               minHeight: "300px",
-              minWidth: "350px"
+              minWidth: "300px"
             },
             children: [
               /* @__PURE__ */ I.jsx(

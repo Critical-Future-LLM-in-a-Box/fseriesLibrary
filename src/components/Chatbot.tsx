@@ -1,33 +1,149 @@
-import React, { memo, useEffect, useRef, useState } from "react";
+import React, { memo, useEffect, useRef, useMemo, useCallback } from "react";
 import { Box, useMediaQuery } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { useStore } from "@/store";
-import { chatbotConfig } from "@/config";
 import { initChatbot } from "@/llminaboxChat";
+import { Item } from "@/store";
 
-const Chatbot: React.FC = () => {
-  const store = useStore();
+interface ChatbotProps {
+  onMediaRecommendationAdd: (item: Item) => Promise<void>;
+  onPartsRecommendationAdd: (item: Item) => Promise<void>;
+}
+
+const Chatbot: React.FC<ChatbotProps> = ({
+  onMediaRecommendationAdd,
+  onPartsRecommendationAdd
+}) => {
   const theme = useTheme();
-  const config = chatbotConfig(store);
-  const chatRef = useRef<HTMLDivElement>(null);
-  const isLg = useMediaQuery(theme.breakpoints.up("xl"));
 
-  const [chatbot, setChatbot] = useState<{
-    config: {};
-    container: any;
-    destroy: () => void;
-  } | null>(null);
+  const handleResponse = useCallback(async (message: { content: string }) => {
+    try {
+      const response = await fetch(
+        "https://llminabox.criticalfutureglobal.com/api/v1/prediction/16af3787-20f9-4555-9453-50e5110cf885",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            question: message.content
+          })
+        }
+      );
+      const responseJson = await response.json();
+      const responseText = responseJson.text;
+
+      const regex = /\[|\]/g;
+      const validJsonString = responseText.replace(regex, (match: string) =>
+        match === "\\\\" || match === "\\[\\]"
+          ? match
+          : match === "["
+            ? "{"
+            : "}"
+      );
+
+      const responseObj = JSON.parse(validJsonString);
+      const recommendations = responseObj.Recommendation;
+
+      Object.keys(recommendations).forEach((key) => {
+        if (key.toLowerCase().includes("media")) {
+          const mediaRecommendations = recommendations[key];
+          const mediaRecommendationsData = {
+            id: Date.now(),
+            title: "",
+            description: "",
+            url: "",
+            image: ""
+          };
+          Object.keys(mediaRecommendations).forEach((property) => {
+            if (property.toLowerCase().includes("title")) {
+              mediaRecommendationsData.title = mediaRecommendations[property];
+            }
+            if (property.toLowerCase().includes("description")) {
+              mediaRecommendationsData.description =
+                mediaRecommendations[property];
+            }
+            if (property.toLowerCase().includes("url")) {
+              mediaRecommendationsData.url = mediaRecommendations[property];
+            }
+          });
+
+          console.log("mediaRecommendationsData", mediaRecommendationsData);
+
+          onMediaRecommendationAdd(mediaRecommendationsData);
+        }
+
+        if (key.toLowerCase().includes("parts")) {
+          const partsRecommendations = recommendations[key];
+          const partsRecommendationsData = {
+            id: Date.now(),
+            title: "",
+            description: "",
+            url: "",
+            image: ""
+          };
+          Object.keys(partsRecommendations).forEach((property) => {
+            if (property.toLowerCase().includes("title")) {
+              partsRecommendationsData.title = partsRecommendations[property];
+            }
+            if (property.toLowerCase().includes("description")) {
+              partsRecommendationsData.description =
+                partsRecommendations[property];
+            }
+            if (property.toLowerCase().includes("url")) {
+              partsRecommendationsData.url = partsRecommendations[property];
+            }
+          });
+
+          console.log("partsRecommendationsData", partsRecommendationsData);
+
+          onPartsRecommendationAdd(partsRecommendationsData);
+        }
+      });
+    } catch (error) {
+      if (error instanceof Error) console.error("Error => ", error.message);
+    }
+  }, []);
+
+  const config = useMemo(
+    () => ({
+      apiHost: "https://llminabox.criticalfutureglobal.com",
+      chatflowId: "0f6e4479-ba3d-4a34-b0cb-be96f269a24c",
+      assistant: {
+        name: "Joe",
+        description: "Fseries AI Assistant",
+        welcomeMessage: "Hello! How can I help you?",
+        voice: {
+          name: "en-US-AndrewNeural",
+          apiKey: "G7x9mVt2Q5bK8Jp4S1Zc",
+          apiHost: "https://tts.criticalfutureglobal.com/get_tts"
+        },
+        avatar: {
+          staticUrl:
+            "https://critical-future-llm-in-a-box.github.io/llminaboxchatbots/Avatars/fs/joe.png",
+          liveUrl: "",
+          videoUrl: ""
+        }
+      },
+      ui: {
+        foregroundColor: "#e0e0e0",
+        backgroundColor: "#181818",
+        backgroundColorBody: "#545454"
+      },
+      onResponse: handleResponse
+    }),
+    [handleResponse]
+  );
+
+  const chatRef = useRef<HTMLDivElement>(null);
+  const isLg = useMediaQuery(theme.breakpoints.up("md"));
 
   useEffect(() => {
     const mode = isLg ? "full" : "bubble";
-
     const newChatbot = initChatbot(config, chatRef.current, mode);
-    setChatbot(newChatbot);
-
     return () => {
       newChatbot?.destroy();
     };
-  }, [isLg]);
+  }, [isLg, config]);
 
   return isLg ? (
     <Box

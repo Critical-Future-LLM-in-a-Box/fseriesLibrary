@@ -2,6 +2,14 @@ import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
 import { persist } from "zustand/middleware";
 
+export interface User {
+  id: string;
+  token: string;
+  email: string;
+  password?: string;
+  username: string;
+}
+
 export enum UserLibrary {
   mediaLibrary = "mediaLibrary",
   partsLibrary = "partsLibrary",
@@ -16,72 +24,80 @@ export interface Item {
   title: string;
   description: string;
   url: string;
-  isSyncing?: boolean;
-  isSyncError?: boolean;
-}
-
-export interface User {
-  id: string;
-  token: string;
-  email: string;
-  password?: string;
-  username: string;
+  image: string;
 }
 
 export interface Store {
   user: User | null;
-  garageName: string | null;
-  mediaLibrary: Item[] | null;
-  partsLibrary: Item[] | null;
-  mediaRecommendations: Item[] | null;
-  partsRecommendations: Item[] | null;
+  garageName: string;
+  mediaLibrary: Item[];
+  partsLibrary: Item[];
+  mediaRecommendations: Item[];
+  partsRecommendations: Item[];
 }
 
 export interface StoreActions {
-  setUser: (user: User) => void;
-  deleteUser: () => void;
+  // User management
+  setUser: (user?: User) => void;
+
+  // Garage settings
   setGarageName: (name: string) => void;
+
+  // Library setters
   setMediaLibrary: (mediaLibrary: Item[]) => void;
   setPartsLibrary: (partsLibrary: Item[]) => void;
   setMediaRecommendations: (mediaRecommendations: Item[]) => void;
   setPartsRecommendations: (partsRecommendations: Item[]) => void;
+
+  // Add items
   addMediaLibraryItem: (item: Item) => void;
   addPartsLibraryItem: (item: Item) => void;
+  addMediaRecommendation: (item: Item) => void;
+  addPartsRecommendation: (item: Item) => void;
+
+  // Update items
   updateMediaLibraryItem: (id: number, item: Partial<Item>) => void;
   updatePartsLibraryItem: (id: number, item: Partial<Item>) => void;
+  updateMediaRecommendation: (id: number, item: Partial<Item>) => void;
+  updatePartsRecommendation: (id: number, item: Partial<Item>) => void;
+
+  // Delete items
   deleteMediaLibraryItem: (id: number) => void;
   deletePartsLibraryItem: (id: number) => void;
+  deleteMediaRecommendation: (id: number) => void;
+  deletePartsRecommendation: (id: number) => void;
 }
 
 export type LibraryStore = Store & StoreActions;
 
 export const initialState: Store = {
   user: null,
-  garageName: null,
-  mediaLibrary: null,
-  partsLibrary: null,
-  mediaRecommendations: null,
-  partsRecommendations: null
+  garageName: "",
+  mediaLibrary: [],
+  partsLibrary: [],
+  mediaRecommendations: [],
+  partsRecommendations: []
 };
 
 export const createActions = (
   set: (fn: (state: LibraryStore) => void) => void
 ) => ({
-  setUser: (user: User) => {
+  // User management actions
+  setUser: (user?: User) => {
     set((state) => {
-      state.user = { ...state.user, ...user };
+      if (user) state.user = { ...(state.user || {}), ...user };
+      else state.user = null;
     });
   },
-  deleteUser: () => {
-    set((state) => {
-      state.user = null;
-    });
-  },
+
+  // Garage actions
   setGarageName: (name: string) => {
     set((state) => {
       state.garageName = name;
     });
   },
+
+  // Library setters
   setMediaLibrary: (mediaLibrary: Item[]) => {
     set((state) => {
       state.mediaLibrary = mediaLibrary;
@@ -102,6 +118,8 @@ export const createActions = (
       state.partsRecommendations = partsRecommendations;
     });
   },
+
+  // Add item actions
   addMediaLibraryItem: (item: Item) => {
     set((state) => {
       state.mediaLibrary?.unshift(item);
@@ -112,6 +130,24 @@ export const createActions = (
       state.partsLibrary?.unshift(item);
     });
   },
+  addMediaRecommendation: (item: Item) => {
+    set((state) => {
+      if (state.mediaRecommendations?.length === 10) {
+        state.mediaRecommendations.pop();
+      }
+      state.mediaRecommendations?.unshift(item);
+    });
+  },
+  addPartsRecommendation: (item: Item) => {
+    set((state) => {
+      if (state.partsRecommendations?.length === 10) {
+        state.partsRecommendations.pop();
+      }
+      state.partsRecommendations?.unshift(item);
+    });
+  },
+
+  // Update item actions
   updateMediaLibraryItem: (id: number, item: Partial<Item>) => {
     set((state) => {
       const existingItem = state.mediaLibrary?.find((item) => item.id === id);
@@ -126,6 +162,26 @@ export const createActions = (
       Object.assign(existingItem, item);
     });
   },
+  updateMediaRecommendation: (id: number, item: Partial<Item>) => {
+    set((state) => {
+      const existingItem = state.mediaRecommendations?.find(
+        (item) => item.id === id
+      );
+      if (!existingItem) return;
+      Object.assign(existingItem, item);
+    });
+  },
+  updatePartsRecommendation: (id: number, item: Partial<Item>) => {
+    set((state) => {
+      const existingItem = state.partsRecommendations?.find(
+        (item) => item.id === id
+      );
+      if (!existingItem) return;
+      Object.assign(existingItem, item);
+    });
+  },
+
+  // Delete item actions
   deleteMediaLibraryItem: (id: number) => {
     set((state) => {
       state.mediaLibrary =
@@ -138,6 +194,22 @@ export const createActions = (
       state.partsLibrary =
         state.partsLibrary?.filter((existingItem) => existingItem.id !== id) ||
         null;
+    });
+  },
+  deleteMediaRecommendation: (id: number) => {
+    set((state) => {
+      state.mediaRecommendations =
+        state.mediaRecommendations?.filter(
+          (existingItem) => existingItem.id !== id
+        ) || null;
+    });
+  },
+  deletePartsRecommendation: (id: number) => {
+    set((state) => {
+      state.partsRecommendations =
+        state.partsRecommendations?.filter(
+          (existingItem) => existingItem.id !== id
+        ) || null;
     });
   }
 });
