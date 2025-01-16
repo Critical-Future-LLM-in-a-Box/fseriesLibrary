@@ -15,10 +15,10 @@ const Background: React.FC<BackgroundProps> = ({ children }) => {
         }
         alt="background"
         sx={{
+          position: "fixed",
           width: "100vw",
           height: "100vh",
-          objectFit: "cover",
-          position: "absolute"
+          objectFit: "cover"
         }}
       />
       {children}

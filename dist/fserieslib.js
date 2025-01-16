@@ -70270,10 +70270,10 @@ const l_e = ({
       src: "https://critical-future-llm-in-a-box.github.io/fseriesLibrary/public/fseries.png",
       alt: "background",
       sx: {
+        position: "fixed",
         width: "100vw",
         height: "100vh",
-        objectFit: "cover",
-        position: "absolute"
+        objectFit: "cover"
       }
     }
   ),
