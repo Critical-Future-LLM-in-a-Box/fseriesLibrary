@@ -18,7 +18,8 @@ const Background: React.FC<BackgroundProps> = ({ children }) => {
           position: "fixed",
           width: "100vw",
           height: "100vh",
-          objectFit: "cover"
+          objectFit: "cover",
+          inset: 0
         }}
       />
       {children}
