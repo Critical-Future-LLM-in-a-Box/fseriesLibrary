@@ -12,7 +12,7 @@ import {
   TextField,
   Button,
   DialogActions,
-  Grid
+  Grid2 as Grid
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -93,8 +93,8 @@ const Library: React.FC<LibraryProps> = ({
           width: "100%",
           height: "100%",
           borderRadius: 3,
-          bgcolor: "rgba(15,15,15,0.7)",
-          backdropFilter: "blur(10px)",
+          bgcolor: "rgba(15,15,15,0.6)",
+          backdropFilter: "blur(8px)",
           p: 2,
           boxSizing: "border-box"
         }}
@@ -231,10 +231,11 @@ const Library: React.FC<LibraryProps> = ({
         container={dialogContainerRef.current}
         PaperProps={{
           sx: {
-            bgcolor: "rgba(15,15,15,0.95)",
+            bgcolor: "rgba(15,15,15)",
             backdropFilter: "blur(10px)",
             borderRadius: 3,
-            maxHeight: "90vh"
+            maxHeight: "75vh",
+            zIndex: 9999
           }
         }}
       >
@@ -280,11 +281,7 @@ const Library: React.FC<LibraryProps> = ({
                     spacing={3}
                   >
                     {youtubeId && (
-                      <Grid
-                        item
-                        xs={12}
-                        md={6}
-                      >
+                      <Grid size={{ xs: 12, md: 6 }}>
                         <Box
                           sx={{
                             position: "relative",
@@ -312,9 +309,8 @@ const Library: React.FC<LibraryProps> = ({
                       </Grid>
                     )}
                     <Grid
-                      item
-                      xs={12}
-                      md={youtubeId ? 6 : 12}
+                      size={{ xs: 12, md: youtubeId ? 6 : 12 }}
+                      sx={{ display: "flex" }}
                     >
                       <Box
                         sx={{
@@ -379,14 +375,24 @@ const Library: React.FC<LibraryProps> = ({
         sx={{ zIndex: 9999 }}
         PaperProps={{
           sx: {
-            bgcolor: "rgba(15,15,15,0.95)",
-            backdropFilter: "blur(10px)",
+            bgcolor: "rgba(25,25,25,0.95)",
+            backdropFilter: "blur(20px)",
             borderRadius: 3,
-            zIndex: 9999
+            maxHeight: "75vh",
+            zIndex: 9999,
+            border: `1px solid ${theme.palette.divider}`,
+            boxShadow: `0 0 20px ${theme.palette.primary.main}33`
           }
         }}
       >
-        <DialogTitle sx={{ color: theme.palette.grey[100] }}>
+        <DialogTitle
+          sx={{
+            color: theme.palette.grey[100],
+            borderBottom: `1px solid ${theme.palette.divider}`,
+            bgcolor: "rgba(30,30,30,0.5)",
+            backdropFilter: "blur(10px)"
+          }}
+        >
           Add New Item
         </DialogTitle>
         <DialogContent>
@@ -430,7 +436,7 @@ const Library: React.FC<LibraryProps> = ({
                 "& .MuiInputLabel-root": { color: theme.palette.grey[100] }
               }}
             />
-            <TextField
+            {/* <TextField
               label="Image URL"
               value={newItem.image}
               onChange={(e) =>
@@ -441,7 +447,7 @@ const Library: React.FC<LibraryProps> = ({
                 "input": { color: theme.palette.grey[100] },
                 "& .MuiInputLabel-root": { color: theme.palette.grey[100] }
               }}
-            />
+            /> */}
           </Stack>
         </DialogContent>
         <DialogActions>
@@ -471,14 +477,24 @@ const Library: React.FC<LibraryProps> = ({
         sx={{ zIndex: 9999 }}
         PaperProps={{
           sx: {
-            bgcolor: "rgba(15,15,15,0.95)",
-            backdropFilter: "blur(10px)",
+            bgcolor: "rgba(25,25,25,0.95)",
+            backdropFilter: "blur(20px)",
             borderRadius: 3,
-            zIndex: 9999
+            maxHeight: "75vh",
+            zIndex: 9999,
+            border: `1px solid ${theme.palette.divider}`,
+            boxShadow: `0 0 20px ${theme.palette.primary.main}33`
           }
         }}
       >
-        <DialogTitle sx={{ color: theme.palette.grey[100] }}>
+        <DialogTitle
+          sx={{
+            color: theme.palette.grey[100],
+            borderBottom: `1px solid ${theme.palette.divider}`,
+            bgcolor: "rgba(30,30,30,0.5)",
+            backdropFilter: "blur(10px)"
+          }}
+        >
           Edit Item
         </DialogTitle>
         <DialogContent>
@@ -533,7 +549,7 @@ const Library: React.FC<LibraryProps> = ({
                 "& .MuiInputLabel-root": { color: theme.palette.grey[100] }
               }}
             />
-            <TextField
+            {/* <TextField
               label="Image URL"
               value={selectedItem?.image || ""}
               onChange={(e) =>
@@ -547,7 +563,7 @@ const Library: React.FC<LibraryProps> = ({
                 "input": { color: theme.palette.grey[100] },
                 "& .MuiInputLabel-root": { color: theme.palette.grey[100] }
               }}
-            />
+            /> */}
           </Stack>
         </DialogContent>
         <DialogActions>

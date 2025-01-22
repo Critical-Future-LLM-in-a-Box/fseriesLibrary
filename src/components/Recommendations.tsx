@@ -48,8 +48,8 @@ const Recommendations: React.FC<RecommendationsProps> = ({
           width: "100%",
           height: "100%",
           borderRadius: 3,
-          bgcolor: "rgba(15,15,15,0.7)",
-          backdropFilter: "blur(10px)",
+          bgcolor: "rgba(15,15,15,0.6)",
+          backdropFilter: "blur(8px)",
           p: 2,
           boxSizing: "border-box"
         }}
@@ -187,13 +187,12 @@ const Recommendations: React.FC<RecommendationsProps> = ({
         maxWidth="lg"
         fullWidth
         container={dialogContainerRef.current}
-        sx={{ zIndex: 9999 }}
         PaperProps={{
           sx: {
-            bgcolor: "rgba(15,15,15,0.95)",
+            bgcolor: "rgba(15,15,15)",
             backdropFilter: "blur(10px)",
             borderRadius: 3,
-            maxHeight: "90vh",
+            maxHeight: "75vh",
             zIndex: 9999
           }
         }}
@@ -221,7 +220,7 @@ const Recommendations: React.FC<RecommendationsProps> = ({
             <CloseIcon />
           </IconButton>
         </DialogTitle>
-        <DialogContent sx={{ p: 3, zIndex: 9999 }}>
+        <DialogContent sx={{ p: 3 }}>
           <Stack
             spacing={3}
             sx={{ mt: 2 }}

@@ -126,8 +126,8 @@ const Chatbot: React.FC<ChatbotProps> = ({
       },
       ui: {
         foregroundColor: "#e0e0e0",
-        backgroundColor: "#181818",
-        backgroundColorBody: "#545454"
+        backgroundColor: "#1a1a1a",
+        backgroundColorBody: "#545454bb"
       },
       onResponse: handleResponse
     }),
