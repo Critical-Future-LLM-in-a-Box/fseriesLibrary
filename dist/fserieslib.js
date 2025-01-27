@@ -30244,7 +30244,13 @@ const KL = () => {
       _y(r).render(
         /* @__PURE__ */ S.jsx(yE, { value: i, children: /* @__PURE__ */ S.jsx(yA, { client: t, children: /* @__PURE__ */ S.jsxs(wP, { theme: e, children: [
           /* @__PURE__ */ S.jsx(r5, {}),
-          /* @__PURE__ */ S.jsx(G3, { style: { top: "100px" } }),
+          /* @__PURE__ */ S.jsx(
+            G3,
+            {
+              autoClose: 2e3,
+              style: { top: "120px" }
+            }
+          ),
           /* @__PURE__ */ S.jsx(U_, { children: /* @__PURE__ */ S.jsx(K$, {}) })
         ] }) }) })
       );
