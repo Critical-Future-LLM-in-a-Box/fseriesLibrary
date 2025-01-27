@@ -1,4 +1,4 @@
-import React, { memo, useRef } from "react";
+import React, { memo, useRef, useState } from "react";
 import {
   Box,
   Paper,
@@ -7,14 +7,15 @@ import {
   IconButton,
   useTheme,
   DialogContent,
-  Grid2 as Grid
+  Grid2 as Grid,
+  Tooltip
 } from "@mui/material";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import Dialog from "@mui/material/Dialog";
 import DialogTitle from "@mui/material/DialogTitle";
 import FullscreenIcon from "@mui/icons-material/Fullscreen";
 import FullscreenExitIcon from "@mui/icons-material/Fullscreen";
-import CloseIcon from "@mui/icons-material/Close";
+import MinimizeIcon from "@mui/icons-material/Minimize";
 import { Item } from "@/store";
 
 interface RecommendationsProps {
@@ -39,9 +40,19 @@ const Recommendations: React.FC<RecommendationsProps> = ({
   const toggleFullscreen = () => setIsFullscreen((prev) => !prev);
 
   const dialogContainerRef = useRef<HTMLDivElement>(null);
+  const tooltipContainerRef = useRef<HTMLDivElement>(null);
+
+  const [detailsItem, setDetailsItem] = useState<Item | null>(null);
+  const [isDetailsDialogOpen, setIsDetailsDialogOpen] = useState(false);
+
+  const handleOpenDetails = (item: Item) => {
+    setDetailsItem(item);
+    setIsDetailsDialogOpen(true);
+  };
 
   return (
     <div style={{ height: "100%" }}>
+      <div ref={tooltipContainerRef} />
       <Stack
         spacing={2}
         sx={{
@@ -75,20 +86,30 @@ const Recommendations: React.FC<RecommendationsProps> = ({
           </Typography>
           <Box>
             {/* Fullscreen Toggle Button */}
-            <IconButton
-              size="small"
-              onClick={toggleFullscreen}
-              sx={{
-                "color": theme.palette.grey[300],
-                "&:hover": {
-                  color: theme.palette.primary.main,
-                  transform: "scale(1.1)",
-                  transition: "all 0.2s ease-in-out"
+            <Tooltip
+              title={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
+              slotProps={{
+                popper: {
+                  container: tooltipContainerRef.current,
+                  disablePortal: true
                 }
               }}
             >
-              {isFullscreen ? <FullscreenExitIcon /> : <FullscreenIcon />}
-            </IconButton>
+              <IconButton
+                size="small"
+                onClick={toggleFullscreen}
+                sx={{
+                  "color": theme.palette.grey[300],
+                  "&:hover": {
+                    color: theme.palette.primary.main,
+                    transform: "scale(1.1)",
+                    transition: "all 0.2s ease-in-out"
+                  }
+                }}
+              >
+                {isFullscreen ? <FullscreenExitIcon /> : <FullscreenIcon />}
+              </IconButton>
+            </Tooltip>
           </Box>
         </Paper>
 
@@ -120,6 +141,7 @@ const Recommendations: React.FC<RecommendationsProps> = ({
                 <Paper
                   key={item.id}
                   elevation={3}
+                  onClick={() => handleOpenDetails(item)}
                   sx={{
                     "p": 2,
                     "bgcolor": "rgba(30,30,30,0.8)",
@@ -156,21 +178,34 @@ const Recommendations: React.FC<RecommendationsProps> = ({
                       {item.description}
                     </Typography>
                   </Box>
-                  <IconButton
-                    size="small"
-                    onClick={() => onAddToLibrary(item)}
-                    sx={{
-                      "alignSelf": "center",
-                      "color": theme.palette.grey[300],
-                      "transition": "all 0.2s ease-in-out",
-                      "&:hover": {
-                        color: theme.palette.success.main,
-                        transform: "scale(1.1)"
+                  <Tooltip
+                    title="Add to library"
+                    slotProps={{
+                      popper: {
+                        container: tooltipContainerRef.current,
+                        disablePortal: true
                       }
                     }}
                   >
-                    <AddCircleIcon />
-                  </IconButton>
+                    <IconButton
+                      size="small"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onAddToLibrary(item);
+                      }}
+                      sx={{
+                        "alignSelf": "center",
+                        "color": theme.palette.grey[300],
+                        "transition": "all 0.2s ease-in-out",
+                        "&:hover": {
+                          color: theme.palette.success.main,
+                          transform: "scale(1.1)"
+                        }
+                      }}
+                    >
+                      <AddCircleIcon />
+                    </IconButton>
+                  </Tooltip>
                 </Paper>
               ))}
             </Stack>
@@ -208,17 +243,27 @@ const Recommendations: React.FC<RecommendationsProps> = ({
           }}
         >
           <Typography fontWeight="bold">{title}</Typography>
-          <IconButton
-            onClick={() => setIsFullscreen(false)}
-            sx={{
-              "color": theme.palette.grey[300],
-              "&:hover": {
-                color: theme.palette.error.main
+          <Tooltip
+            title="Minimize"
+            slotProps={{
+              popper: {
+                container: tooltipContainerRef.current,
+                disablePortal: true
               }
             }}
           >
-            <CloseIcon />
-          </IconButton>
+            <IconButton
+              onClick={() => setIsFullscreen(false)}
+              sx={{
+                "color": theme.palette.grey[300],
+                "&:hover": {
+                  color: theme.palette.error.main
+                }
+              }}
+            >
+              <MinimizeIcon />
+            </IconButton>
+          </Tooltip>
         </DialogTitle>
         <DialogContent sx={{ p: 3 }}>
           <Stack
@@ -326,19 +371,29 @@ const Recommendations: React.FC<RecommendationsProps> = ({
                             mt: 2
                           }}
                         >
-                          <IconButton
-                            onClick={() => onAddToLibrary(item)}
-                            sx={{
-                              "color": theme.palette.grey[300],
-                              "transition": "all 0.2s ease-in-out",
-                              "&:hover": {
-                                color: theme.palette.success.main,
-                                transform: "scale(1.1)"
+                          <Tooltip
+                            title="Add to library"
+                            slotProps={{
+                              popper: {
+                                container: tooltipContainerRef.current,
+                                disablePortal: true
                               }
                             }}
                           >
-                            <AddCircleIcon sx={{ fontSize: 28 }} />
-                          </IconButton>
+                            <IconButton
+                              onClick={() => onAddToLibrary(item)}
+                              sx={{
+                                "color": theme.palette.grey[300],
+                                "transition": "all 0.2s ease-in-out",
+                                "&:hover": {
+                                  color: theme.palette.success.main,
+                                  transform: "scale(1.1)"
+                                }
+                              }}
+                            >
+                              <AddCircleIcon sx={{ fontSize: 28 }} />
+                            </IconButton>
+                          </Tooltip>
                         </Box>
                       </Box>
                     </Grid>
@@ -347,6 +402,86 @@ const Recommendations: React.FC<RecommendationsProps> = ({
               );
             })}
           </Stack>
+        </DialogContent>
+      </Dialog>
+
+      {/* Details Dialog */}
+      <Dialog
+        open={isDetailsDialogOpen}
+        onClose={() => setIsDetailsDialogOpen(false)}
+        maxWidth="md"
+        fullWidth
+        container={dialogContainerRef.current}
+        PaperProps={{
+          sx: {
+            bgcolor: "rgba(15,15,15,0.95)",
+            backdropFilter: "blur(10px)",
+            borderRadius: 3,
+            maxHeight: "90vh"
+          }
+        }}
+      >
+        <DialogTitle
+          sx={{
+            borderBottom: "1px solid rgba(255,255,255,0.1)",
+            p: 3,
+            color: theme.palette.grey[100],
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center"
+          }}
+        >
+          <Typography fontWeight="bold">{detailsItem?.title}</Typography>
+          <Tooltip
+            title="Close"
+            slotProps={{
+              popper: {
+                container: tooltipContainerRef.current,
+                disablePortal: true
+              }
+            }}
+          >
+            <IconButton
+              onClick={() => setIsDetailsDialogOpen(false)}
+              sx={{
+                "color": theme.palette.grey[300],
+                "&:hover": {
+                  color: theme.palette.error.main
+                }
+              }}
+            >
+              <MinimizeIcon />
+            </IconButton>
+          </Tooltip>
+        </DialogTitle>
+        <DialogContent sx={{ p: 3 }}>
+          <Typography
+            variant="body1"
+            sx={{
+              color: theme.palette.grey[300],
+              lineHeight: 1.6,
+              mb: 2
+            }}
+          >
+            {detailsItem?.description}
+          </Typography>
+          {detailsItem?.url && (
+            <Typography
+              component="a"
+              href={detailsItem.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              sx={{
+                "color": theme.palette.primary.main,
+                "textDecoration": "none",
+                "&:hover": {
+                  textDecoration: "underline"
+                }
+              }}
+            >
+              Visit Resource
+            </Typography>
+          )}
         </DialogContent>
       </Dialog>
     </div>
