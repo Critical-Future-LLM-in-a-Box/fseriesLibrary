@@ -1,10 +1,8 @@
 import React, { memo, useEffect, useRef, useMemo, useCallback } from "react";
 import { Box, useMediaQuery } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
+import { initChatbot } from "@/llminaboxChat";
 import { Item } from "@/store";
-// @ts-ignore
-// eslint-disable-next-line
-import { initChatbot } from "https://critical-future-llm-in-a-box.github.io/llminaboxchatbots/dist/llminaboxChat.js";
 
 interface ChatbotProps {
   onMediaRecommendationAdd: (item: Item) => Promise<void>;

@@ -51,7 +51,7 @@ const RootComponent = () => {
           <QueryClientProvider client={queryClient}>
             <ThemeProvider theme={theme}>
               <CssBaseline />
-              <ToastContainer style={{ top: "100px" }} />
+              <ToastContainer />
               <AuthWrapper>
                 <App />
               </AuthWrapper>

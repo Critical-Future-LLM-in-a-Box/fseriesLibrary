@@ -1,4 +1,4 @@
-import React, { useState, memo, useRef } from "react";
+import React, { useState, memo } from "react";
 import {
   Paper,
   Stack,
@@ -6,8 +6,7 @@ import {
   Grid2 as Grid,
   IconButton,
   TextField,
-  Typography,
-  Tooltip
+  Typography
 } from "@mui/material";
 import { Edit, Save, Logout } from "@mui/icons-material";
 import { toast } from "react-toastify";
@@ -18,7 +17,6 @@ import Chatbot from "@/components/Chatbot";
 import Recommendations from "@/components/Recommendations";
 
 const App = () => {
-  const tooltipContainerRef = useRef<HTMLDivElement>(null);
   const { garageName, setGarageName } = useStore();
   const [isEditingName, setIsEditingName] = useState(false);
   const [tempName, setTempName] = useState(garageName || "");
@@ -155,7 +153,6 @@ const App = () => {
         alignItems: "flex-start"
       }}
     >
-      <div ref={tooltipContainerRef} />
       <Grid
         container
         spacing={4}
@@ -196,88 +193,45 @@ const App = () => {
                 {garageName ?? ""} Garage
               </Typography>
             )}
-            <Tooltip
-              title={isEditingName ? "Save name" : "Edit name"}
-              slotProps={{
-                popper: {
-                  container: tooltipContainerRef.current,
-                  disablePortal: true
+            <IconButton
+              onClick={() => {
+                if (isEditingName) {
+                  setGarageName(tempName);
+                  setIsEditingName(false);
+                } else {
+                  setIsEditingName(true);
+                  setTempName(garageName ?? "");
                 }
               }}
+              sx={{ color: "#fff" }}
             >
-              <IconButton
-                onClick={() => {
-                  if (isEditingName) {
-                    setGarageName(tempName);
-                    setIsEditingName(false);
-                  } else {
-                    setIsEditingName(true);
-                    setTempName(garageName ?? "");
-                  }
-                }}
-                sx={{ color: "#fff" }}
-              >
-                {isEditingName ? <Save /> : <Edit />}
-              </IconButton>
-            </Tooltip>
+              {isEditingName ? <Save /> : <Edit />}
+            </IconButton>
           </Box>
-          <Tooltip
-            title="Logout"
-            slotProps={{
-              popper: {
-                container: tooltipContainerRef.current,
-                disablePortal: true
+          <IconButton
+            onClick={handleLogout}
+            sx={{
+              "backgroundColor": "rgba(0,0,0,0.5)",
+              "color": "white",
+              "&:hover": {
+                backgroundColor: "rgba(0,0,0,0.7)",
+                color: "rgba(255,255,255,0.7)"
               }
             }}
           >
-            <IconButton
-              onClick={handleLogout}
-              sx={{
-                "backgroundColor": "rgba(0,0,0,0.5)",
-                "color": "white",
-                "&:hover": {
-                  backgroundColor: "rgba(0,0,0,0.7)",
-                  color: "rgba(255,255,255,0.7)"
-                }
-              }}
-            >
-              <Logout />
-            </IconButton>
-          </Tooltip>
-        </Grid>
-
-        {/* Chatbot Row */}
-        <Grid
-          size={12}
-          sx={{ display: { xs: "none", md: "flex" } }}
-        >
-          <Paper
-            variant="elevation"
-            elevation={2}
-            sx={{
-              flexGrow: 1,
-              borderRadius: 8,
-              height: "80vh",
-              overflow: "hidden",
-              bgcolor: "transparent"
-            }}
-          >
-            <Chatbot
-              onMediaRecommendationAdd={handleAddMediaRecommendation}
-              onPartsRecommendationAdd={handleAddPartsRecommendation}
-            />
-          </Paper>
+            <Logout />
+          </IconButton>
         </Grid>
 
         {/* Libraries Container */}
         <Grid
-          size={12}
+          size={{ xs: 12, md: 6, lg: 8 }}
           container
           sx={{ overflow: "auto", maxHeight: "80vh" }}
         >
           {/* Media Column */}
           <Grid
-            size={{ xs: 12, md: 6 }}
+            size={{ xs: 12, lg: 6 }}
             sx={{ display: "flex" }}
           >
             <Stack
@@ -327,7 +281,7 @@ const App = () => {
 
           {/* Parts Column */}
           <Grid
-            size={{ xs: 12, md: 6 }}
+            size={{ xs: 12, lg: 6 }}
             sx={{ display: "flex" }}
           >
             <Stack
@@ -374,6 +328,29 @@ const App = () => {
               </Paper>
             </Stack>
           </Grid>
+        </Grid>
+
+        {/* Chatbot Column */}
+        <Grid
+          size={{ xs: 0, md: 6, lg: 4 }}
+          sx={{ display: { xs: "none", md: "flex" } }}
+        >
+          <Paper
+            variant="elevation"
+            elevation={2}
+            sx={{
+              flexGrow: 1,
+              borderRadius: 8,
+              height: "80vh",
+              overflow: "hidden",
+              bgcolor: "transparent"
+            }}
+          >
+            <Chatbot
+              onMediaRecommendationAdd={handleAddMediaRecommendation}
+              onPartsRecommendationAdd={handleAddPartsRecommendation}
+            />
+          </Paper>
         </Grid>
       </Grid>
     </div>

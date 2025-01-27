@@ -12,15 +12,14 @@ import {
   TextField,
   Button,
   DialogActions,
-  Grid2 as Grid,
-  Tooltip
+  Grid2 as Grid
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import FullscreenIcon from "@mui/icons-material/Fullscreen";
 import FullscreenExitIcon from "@mui/icons-material/FullscreenExit";
-import MinimizeIcon from "@mui/icons-material/Minimize";
+import CloseIcon from "@mui/icons-material/Close";
 import { Item } from "@/store";
 
 interface LibraryProps {
@@ -55,13 +54,10 @@ const Library: React.FC<LibraryProps> = ({
     url: "",
     image: ""
   });
-  const [detailsItem, setDetailsItem] = useState<Item | null>(null);
-  const [isDetailsDialogOpen, setIsDetailsDialogOpen] = useState(false);
 
   const toggleFullscreen = () => setIsFullscreen(!isFullscreen);
 
   const dialogContainerRef = useRef<HTMLDivElement>(null);
-  const tooltipContainerRef = useRef<HTMLDivElement>(null);
 
   const handleAddItem = () => {
     if (onAddItem) {
@@ -89,26 +85,16 @@ const Library: React.FC<LibraryProps> = ({
     setIsEditDialogOpen(true);
   };
 
-  const handleOpenDetails = (item: Item) => {
-    setDetailsItem(item);
-    setIsDetailsDialogOpen(true);
-  };
-
-  const handleButtonClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-  };
-
   return (
     <div style={{ height: "100%" }}>
-      <div ref={tooltipContainerRef} />
       <Stack
         spacing={2}
         sx={{
           width: "100%",
           height: "100%",
           borderRadius: 3,
-          bgcolor: "rgba(15,15,15,0.7)",
-          backdropFilter: "blur(10px)",
+          bgcolor: "rgba(15,15,15,0.6)",
+          backdropFilter: "blur(8px)",
           p: 2,
           boxSizing: "border-box"
         }}
@@ -137,47 +123,27 @@ const Library: React.FC<LibraryProps> = ({
             spacing={1}
           >
             {onAddItem && (
-              <Tooltip
-                title="Add new item"
-                slotProps={{
-                  popper: {
-                    container: tooltipContainerRef.current,
-                    disablePortal: true
-                  }
-                }}
-              >
-                <IconButton
-                  size="small"
-                  onClick={() => setIsAddDialogOpen(true)}
-                  sx={{
-                    "color": theme.palette.grey[300],
-                    "&:hover": { color: theme.palette.primary.main }
-                  }}
-                >
-                  <AddCircleIcon />
-                </IconButton>
-              </Tooltip>
-            )}
-            <Tooltip
-              title={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
-              slotProps={{
-                popper: {
-                  container: tooltipContainerRef.current,
-                  disablePortal: true
-                }
-              }}
-            >
               <IconButton
                 size="small"
-                onClick={toggleFullscreen}
+                onClick={() => setIsAddDialogOpen(true)}
                 sx={{
                   "color": theme.palette.grey[300],
                   "&:hover": { color: theme.palette.primary.main }
                 }}
               >
-                {isFullscreen ? <FullscreenExitIcon /> : <FullscreenIcon />}
+                <AddCircleIcon />
               </IconButton>
-            </Tooltip>
+            )}
+            <IconButton
+              size="small"
+              onClick={toggleFullscreen}
+              sx={{
+                "color": theme.palette.grey[300],
+                "&:hover": { color: theme.palette.primary.main }
+              }}
+            >
+              {isFullscreen ? <FullscreenExitIcon /> : <FullscreenIcon />}
+            </IconButton>
           </Stack>
         </Paper>
 
@@ -188,7 +154,6 @@ const Library: React.FC<LibraryProps> = ({
               <Paper
                 key={item.id}
                 elevation={3}
-                onClick={() => handleOpenDetails(item)}
                 sx={{
                   "p": 2,
                   "bgcolor": "rgba(30,30,30,0.8)",
@@ -197,7 +162,6 @@ const Library: React.FC<LibraryProps> = ({
                   "gap": 2,
                   "borderRadius": 2,
                   "transition": "all 0.2s ease-in-out",
-                  "cursor": "pointer",
                   "&:hover": {
                     bgcolor: "rgba(40,40,40,0.9)",
                     transform: "translateX(4px)"
@@ -228,54 +192,27 @@ const Library: React.FC<LibraryProps> = ({
                 <Stack
                   direction="row"
                   spacing={1}
-                  onClick={handleButtonClick}
                 >
-                  <Tooltip
-                    title="Edit item"
-                    slotProps={{
-                      popper: {
-                        container: tooltipContainerRef.current,
-                        disablePortal: true
-                      }
+                  <IconButton
+                    size="small"
+                    onClick={() => handleOpenEditDialog(item)}
+                    sx={{
+                      "color": theme.palette.grey[300],
+                      "&:hover": { color: theme.palette.primary.main }
                     }}
                   >
-                    <IconButton
-                      size="small"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleOpenEditDialog(item);
-                      }}
-                      sx={{
-                        "color": theme.palette.grey[300],
-                        "&:hover": { color: theme.palette.primary.main }
-                      }}
-                    >
-                      <EditIcon />
-                    </IconButton>
-                  </Tooltip>
-                  <Tooltip
-                    title="Delete item"
-                    slotProps={{
-                      popper: {
-                        container: tooltipContainerRef.current,
-                        disablePortal: true
-                      }
+                    <EditIcon />
+                  </IconButton>
+                  <IconButton
+                    size="small"
+                    onClick={() => handleDeleteItem(item.id)}
+                    sx={{
+                      "color": theme.palette.grey[300],
+                      "&:hover": { color: theme.palette.error.main }
                     }}
                   >
-                    <IconButton
-                      size="small"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDeleteItem(item.id);
-                      }}
-                      sx={{
-                        "color": theme.palette.grey[300],
-                        "&:hover": { color: theme.palette.error.main }
-                      }}
-                    >
-                      <DeleteIcon />
-                    </IconButton>
-                  </Tooltip>
+                    <DeleteIcon />
+                  </IconButton>
                 </Stack>
               </Paper>
             ))}
@@ -294,10 +231,11 @@ const Library: React.FC<LibraryProps> = ({
         container={dialogContainerRef.current}
         PaperProps={{
           sx: {
-            bgcolor: "rgba(15,15,15,0.95)",
+            bgcolor: "rgba(15,15,15)",
             backdropFilter: "blur(10px)",
             borderRadius: 3,
-            maxHeight: "90vh"
+            maxHeight: "75vh",
+            zIndex: 9999
           }
         }}
       >
@@ -312,27 +250,15 @@ const Library: React.FC<LibraryProps> = ({
           }}
         >
           <Typography fontWeight="bold">{title}</Typography>
-          <Tooltip
-            title="Minimize"
-            slotProps={{
-              popper: {
-                container: tooltipContainerRef.current,
-                disablePortal: true
-              }
+          <IconButton
+            onClick={() => setIsFullscreen(false)}
+            sx={{
+              "color": theme.palette.grey[300],
+              "&:hover": { color: theme.palette.error.main }
             }}
           >
-            <IconButton
-              onClick={() => setIsFullscreen(false)}
-              sx={{
-                "color": theme.palette.grey[300],
-                "&:hover": {
-                  color: theme.palette.error.main
-                }
-              }}
-            >
-              <MinimizeIcon />
-            </IconButton>
-          </Tooltip>
+            <CloseIcon />
+          </IconButton>
         </DialogTitle>
         <DialogContent sx={{ p: 3 }}>
           <Stack spacing={3}>
@@ -382,7 +308,10 @@ const Library: React.FC<LibraryProps> = ({
                         </Box>
                       </Grid>
                     )}
-                    <Grid size={{ xs: 12, md: youtubeId ? 6 : 12 }}>
+                    <Grid
+                      size={{ xs: 12, md: youtubeId ? 6 : 12 }}
+                      sx={{ display: "flex" }}
+                    >
                       <Box
                         sx={{
                           height: "100%",
@@ -409,31 +338,21 @@ const Library: React.FC<LibraryProps> = ({
                             {item.description}
                           </Typography>
                           {item.url && !youtubeId && (
-                            <Tooltip
-                              title="Open resource in new tab"
-                              slotProps={{
-                                popper: {
-                                  container: tooltipContainerRef.current,
-                                  disablePortal: true
+                            <Typography
+                              component="a"
+                              href={item.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              sx={{
+                                "color": theme.palette.primary.main,
+                                "textDecoration": "none",
+                                "&:hover": {
+                                  textDecoration: "underline"
                                 }
                               }}
                             >
-                              <Typography
-                                component="a"
-                                href={item.url}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                sx={{
-                                  "color": theme.palette.primary.main,
-                                  "textDecoration": "none",
-                                  "&:hover": {
-                                    textDecoration: "underline"
-                                  }
-                                }}
-                              >
-                                Visit Resource
-                              </Typography>
-                            </Tooltip>
+                              Visit Resource
+                            </Typography>
                           )}
                         </Box>
                       </Box>
@@ -456,14 +375,24 @@ const Library: React.FC<LibraryProps> = ({
         sx={{ zIndex: 9999 }}
         PaperProps={{
           sx: {
-            bgcolor: "rgba(15,15,15,0.95)",
-            backdropFilter: "blur(10px)",
+            bgcolor: "rgba(25,25,25,0.95)",
+            backdropFilter: "blur(20px)",
             borderRadius: 3,
-            zIndex: 9999
+            maxHeight: "75vh",
+            zIndex: 9999,
+            border: `1px solid ${theme.palette.divider}`,
+            boxShadow: `0 0 20px ${theme.palette.primary.main}33`
           }
         }}
       >
-        <DialogTitle sx={{ color: theme.palette.grey[100] }}>
+        <DialogTitle
+          sx={{
+            color: theme.palette.grey[100],
+            borderBottom: `1px solid ${theme.palette.divider}`,
+            bgcolor: "rgba(30,30,30,0.5)",
+            backdropFilter: "blur(10px)"
+          }}
+        >
           Add New Item
         </DialogTitle>
         <DialogContent>
@@ -478,7 +407,6 @@ const Library: React.FC<LibraryProps> = ({
                 setNewItem({ ...newItem, title: e.target.value })
               }
               fullWidth
-              title="Enter the title for your item" // HTML native tooltip
               sx={{
                 "input": { color: theme.palette.grey[100] },
                 "& .MuiInputLabel-root": { color: theme.palette.grey[100] }
@@ -493,7 +421,6 @@ const Library: React.FC<LibraryProps> = ({
               fullWidth
               multiline
               rows={3}
-              title="Enter a description for your item" // HTML native tooltip
               sx={{
                 "textarea": { color: theme.palette.grey[100] },
                 "& .MuiInputLabel-root": { color: theme.palette.grey[100] }
@@ -504,61 +431,39 @@ const Library: React.FC<LibraryProps> = ({
               value={newItem.url}
               onChange={(e) => setNewItem({ ...newItem, url: e.target.value })}
               fullWidth
-              title="Enter a URL (YouTube links will be embedded)" // HTML native tooltip
               sx={{
                 "input": { color: theme.palette.grey[100] },
                 "& .MuiInputLabel-root": { color: theme.palette.grey[100] }
               }}
             />
-            <TextField
+            {/* <TextField
               label="Image URL"
               value={newItem.image}
               onChange={(e) =>
                 setNewItem({ ...newItem, image: e.target.value })
               }
               fullWidth
-              title="Enter an image URL (optional)" // HTML native tooltip
               sx={{
                 "input": { color: theme.palette.grey[100] },
                 "& .MuiInputLabel-root": { color: theme.palette.grey[100] }
               }}
-            />
+            /> */}
           </Stack>
         </DialogContent>
         <DialogActions>
-          <Tooltip
-            title="Discard changes"
-            slotProps={{
-              popper: {
-                container: tooltipContainerRef.current,
-                disablePortal: true
-              }
-            }}
+          <Button
+            onClick={() => setIsAddDialogOpen(false)}
+            sx={{ color: theme.palette.grey[300] }}
           >
-            <Button
-              onClick={() => setIsAddDialogOpen(false)}
-              sx={{ color: theme.palette.grey[300] }}
-            >
-              Cancel
-            </Button>
-          </Tooltip>
-          <Tooltip
-            title="Save new item"
-            slotProps={{
-              popper: {
-                container: tooltipContainerRef.current,
-                disablePortal: true
-              }
-            }}
+            Cancel
+          </Button>
+          <Button
+            onClick={handleAddItem}
+            variant="contained"
+            sx={{ bgcolor: theme.palette.primary.main, color: "#fff" }}
           >
-            <Button
-              onClick={handleAddItem}
-              variant="contained"
-              sx={{ bgcolor: theme.palette.primary.main, color: "#fff" }}
-            >
-              Add
-            </Button>
-          </Tooltip>
+            Add
+          </Button>
         </DialogActions>
       </Dialog>
 
@@ -572,14 +477,24 @@ const Library: React.FC<LibraryProps> = ({
         sx={{ zIndex: 9999 }}
         PaperProps={{
           sx: {
-            bgcolor: "rgba(15,15,15,0.95)",
-            backdropFilter: "blur(10px)",
+            bgcolor: "rgba(25,25,25,0.95)",
+            backdropFilter: "blur(20px)",
             borderRadius: 3,
-            zIndex: 9999
+            maxHeight: "75vh",
+            zIndex: 9999,
+            border: `1px solid ${theme.palette.divider}`,
+            boxShadow: `0 0 20px ${theme.palette.primary.main}33`
           }
         }}
       >
-        <DialogTitle sx={{ color: theme.palette.grey[100] }}>
+        <DialogTitle
+          sx={{
+            color: theme.palette.grey[100],
+            borderBottom: `1px solid ${theme.palette.divider}`,
+            bgcolor: "rgba(30,30,30,0.5)",
+            backdropFilter: "blur(10px)"
+          }}
+        >
           Edit Item
         </DialogTitle>
         <DialogContent>
@@ -597,7 +512,6 @@ const Library: React.FC<LibraryProps> = ({
                 })
               }
               fullWidth
-              title="Enter the title for your item" // HTML native tooltip
               sx={{
                 "input": { color: theme.palette.grey[100] },
                 "& .MuiInputLabel-root": { color: theme.palette.grey[100] }
@@ -615,7 +529,6 @@ const Library: React.FC<LibraryProps> = ({
               fullWidth
               multiline
               rows={3}
-              title="Enter a description for your item" // HTML native tooltip
               sx={{
                 "textarea": { color: theme.palette.grey[100] },
                 "& .MuiInputLabel-root": { color: theme.palette.grey[100] }
@@ -631,13 +544,12 @@ const Library: React.FC<LibraryProps> = ({
                 })
               }
               fullWidth
-              title="Enter a URL (YouTube links will be embedded)" // HTML native tooltip
               sx={{
                 "input": { color: theme.palette.grey[100] },
                 "& .MuiInputLabel-root": { color: theme.palette.grey[100] }
               }}
             />
-            <TextField
+            {/* <TextField
               label="Image URL"
               value={selectedItem?.image || ""}
               onChange={(e) =>
@@ -647,177 +559,28 @@ const Library: React.FC<LibraryProps> = ({
                 })
               }
               fullWidth
-              title="Enter an image URL (optional)" // HTML native tooltip
               sx={{
                 "input": { color: theme.palette.grey[100] },
                 "& .MuiInputLabel-root": { color: theme.palette.grey[100] }
               }}
-            />
+            /> */}
           </Stack>
         </DialogContent>
         <DialogActions>
-          <Tooltip
-            title="Discard changes"
-            slotProps={{
-              popper: {
-                container: tooltipContainerRef.current,
-                disablePortal: true
-              }
-            }}
+          <Button
+            onClick={() => setIsEditDialogOpen(false)}
+            sx={{ color: theme.palette.grey[300] }}
           >
-            <Button
-              onClick={() => setIsEditDialogOpen(false)}
-              sx={{ color: theme.palette.grey[300] }}
-            >
-              Cancel
-            </Button>
-          </Tooltip>
-          <Tooltip
-            title="Save changes"
-            slotProps={{
-              popper: {
-                container: tooltipContainerRef.current,
-                disablePortal: true
-              }
-            }}
+            Cancel
+          </Button>
+          <Button
+            onClick={handleEditItem}
+            variant="contained"
+            sx={{ bgcolor: theme.palette.primary.main, color: "#fff" }}
           >
-            <Button
-              onClick={handleEditItem}
-              variant="contained"
-              sx={{ bgcolor: theme.palette.primary.main, color: "#fff" }}
-            >
-              Save
-            </Button>
-          </Tooltip>
+            Save
+          </Button>
         </DialogActions>
-      </Dialog>
-
-      {/* Details Dialog */}
-      <Dialog
-        open={isDetailsDialogOpen}
-        onClose={() => setIsDetailsDialogOpen(false)}
-        maxWidth="md"
-        fullWidth
-        container={dialogContainerRef.current}
-        PaperProps={{
-          sx: {
-            bgcolor: "rgba(15,15,15,0.95)",
-            backdropFilter: "blur(10px)",
-            borderRadius: 3,
-            maxHeight: "90vh"
-          }
-        }}
-      >
-        <DialogTitle
-          sx={{
-            borderBottom: "1px solid rgba(255,255,255,0.1)",
-            p: 3,
-            color: theme.palette.grey[100],
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center"
-          }}
-        >
-          <Typography fontWeight="bold">Item Details</Typography>
-          <Tooltip
-            title="Close details"
-            slotProps={{
-              popper: {
-                container: tooltipContainerRef.current,
-                disablePortal: true
-              }
-            }}
-          >
-            <IconButton
-              onClick={() => setIsDetailsDialogOpen(false)}
-              sx={{
-                "color": theme.palette.grey[300],
-                "&:hover": { color: theme.palette.error.main }
-              }}
-            >
-              <MinimizeIcon />
-            </IconButton>
-          </Tooltip>
-        </DialogTitle>
-        <DialogContent sx={{ p: 3 }}>
-          {detailsItem && (
-            <Grid
-              container
-              spacing={3}
-            >
-              {detailsItem.url && getYoutubeVideoId(detailsItem.url) && (
-                <Grid size={{ xs: 12 }}>
-                  <Box
-                    sx={{
-                      position: "relative",
-                      paddingTop: "56.25%",
-                      width: "100%",
-                      borderRadius: 2,
-                      overflow: "hidden",
-                      mb: 3
-                    }}
-                  >
-                    <iframe
-                      title={`YouTube video player - ${detailsItem.title}`}
-                      style={{
-                        position: "absolute",
-                        top: 0,
-                        left: 0,
-                        width: "100%",
-                        height: "100%",
-                        border: "none"
-                      }}
-                      src={`https://www.youtube.com/embed/${getYoutubeVideoId(detailsItem.url)}`}
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                      allowFullScreen
-                    />
-                  </Box>
-                </Grid>
-              )}
-              <Grid size={{ xs: 12 }}>
-                <Typography
-                  variant="h5"
-                  fontWeight="bold"
-                  sx={{ mb: 2, color: theme.palette.grey[100] }}
-                >
-                  {detailsItem.title}
-                </Typography>
-                <Typography
-                  variant="body1"
-                  sx={{
-                    mb: 3,
-                    color: theme.palette.grey[300],
-                    whiteSpace: "pre-wrap"
-                  }}
-                >
-                  {detailsItem.description}
-                </Typography>
-                {detailsItem.url && !getYoutubeVideoId(detailsItem.url) && (
-                  <Tooltip
-                    title="Open resource in new tab"
-                    slotProps={{
-                      popper: {
-                        container: tooltipContainerRef.current,
-                        disablePortal: true
-                      }
-                    }}
-                  >
-                    <Button
-                      component="a"
-                      href={detailsItem.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      variant="outlined"
-                      sx={{ color: theme.palette.primary.main }}
-                    >
-                      Visit Resource
-                    </Button>
-                  </Tooltip>
-                )}
-              </Grid>
-            </Grid>
-          )}
-        </DialogContent>
       </Dialog>
     </div>
   );
