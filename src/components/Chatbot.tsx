@@ -1,8 +1,10 @@
 import React, { memo, useEffect, useRef, useMemo, useCallback } from "react";
 import { Box, useMediaQuery } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
-import { initChatbot } from "@/llminaboxChat";
 import { Item } from "@/store";
+// @ts-ignore
+// eslint-disable-next-line
+import { initChatbot } from "https://critical-future-llm-in-a-box.github.io/llminaboxchatbots/dist/llminaboxChat.js";
 
 interface ChatbotProps {
   onMediaRecommendationAdd: (item: Item) => Promise<void>;
@@ -120,11 +122,14 @@ const Chatbot: React.FC<ChatbotProps> = ({
         avatar: {
           staticUrl:
             "https://critical-future-llm-in-a-box.github.io/llminaboxchatbots/Avatars/fs/joe.png",
-          liveUrl: "",
-          videoUrl: ""
+          liveUrl:
+            "https://critical-future-llm-in-a-box.github.io/llminaboxchatbots/Avatars/fs/joe.gif",
+          videoUrl:
+            "https://critical-future-llm-in-a-box.github.io/llminaboxchatbots/Avatars/fs/joe.mp4"
         }
       },
       ui: {
+        sidebar: true,
         foregroundColor: "#e0e0e0",
         backgroundColor: "#1a1a1a",
         backgroundColorBody: "#545454bb"
