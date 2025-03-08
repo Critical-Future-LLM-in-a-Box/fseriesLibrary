@@ -30248,7 +30248,7 @@ const KL = () => {
             G3,
             {
               autoClose: 2e3,
-              style: { top: "120px" }
+              style: { top: "150px" }
             }
           ),
           /* @__PURE__ */ S.jsx(U_, { children: /* @__PURE__ */ S.jsx(K$, {}) })
