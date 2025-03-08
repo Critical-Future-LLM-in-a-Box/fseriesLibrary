@@ -53,7 +53,7 @@ const RootComponent = () => {
               <CssBaseline />
               <ToastContainer
                 autoClose={2000}
-                style={{ top: "120px" }}
+                style={{ top: "150px" }}
               />
               <AuthWrapper>
                 <App />
