@@ -132,9 +132,9 @@ const Chatbot: React.FC<ChatbotProps> = ({
         sidebar: true,
         foregroundColor: "#e0e0e0",
         backgroundColor: "#1a1a1a",
-        backgroundColorBody: "#545454bb"
+        bodyBackgroundColor: "#545454bb",
       },
-      onResponse: handleResponse
+      onAPIMessage: handleResponse
     }),
     [handleResponse]
   );
@@ -143,11 +143,12 @@ const Chatbot: React.FC<ChatbotProps> = ({
   const isLg = useMediaQuery(theme.breakpoints.up("md"));
 
   useEffect(() => {
-    const mode = isLg ? "full" : "bubble";
-    const newChatbot = initChatbot(config, chatRef.current, mode);
-    return () => {
-      newChatbot?.destroy();
-    };
+  const chatbotInstance = isLg
+  ? initChatbot(config, chatRef.current!)
+  : initChatbot(config);
+  return () => {
+  chatbotInstance.destroy();
+  };
   }, [isLg, config]);
 
   return isLg ? (
